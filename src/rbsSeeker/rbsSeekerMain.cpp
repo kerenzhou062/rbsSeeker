@@ -29,7 +29,7 @@ using namespace std;
 #include "statistic.h"
 #include "rbsSeeker.h"
 
-char version[] = "rbsSeeker version 0.1";
+char version[] = "rbsSeeker version 1.0";
 void usage(void);
 
 int main(int argc, char *argv[])
