@@ -21,9 +21,9 @@ using namespace BamTools;
 using namespace std;
 
 #include "bioUtils.h"
-#include "bedFile.h"
 #include "faiFile.h"
-#include "bamFile.h"
+#include "bedFile.h"
+#include "samFile.h"
 
 template<typename T>
 string NumberToString(T Number)
@@ -231,6 +231,7 @@ void bamToBlocks(const BamAlignment &bam, const string &chrom, bed6Vector &bedBl
     switch (cigItr->Type) {
     case ('M') :
       blockLength += cigItr->Length;
+      break;
     case ('I') : break;
     case ('S') : break;
     case ('D') :
@@ -252,6 +253,7 @@ void bamToBlocks(const BamAlignment &bam, const string &chrom, bed6Vector &bedBl
         chromStart += cigItr->Length + blockLength;
         blockLength = 0;
       }
+      break;
     case ('H') : break;                             // for 'H' - do nothing, move to next op
     default    :
       printf("ERROR: Invalid Cigar op type\n");   // shouldn't get here
@@ -262,13 +264,13 @@ void bamToBlocks(const BamAlignment &bam, const string &chrom, bed6Vector &bedBl
                                   bam.Name, 1.0, strand) );
 }
 
-CBed12 *bamToBed12(const BamAlignment &bam, const string &chrom, bool skipDeletion, bool skipSplice)
+CBed12 *bamToBed12(const BamAlignment &bam, const string &chrom, int skipDeletion, int skipSplice, int collapser)
 {
   int i;
   CBed12 *bedPtr = NULL;
   string readName  = bam.Name;
-  if (bam.IsFirstMate()) readName += "/1";
-  if (bam.IsSecondMate()) readName += "/2";
+  //if (bam.IsFirstMate()) readName += "/1";
+  //if (bam.IsSecondMate()) readName += "/2";
   int  chromStart = bam.Position;
   int  chromEnd   = bam.GetEndPosition(false, false);
   bedPtr             = (CBed12 *)safeMalloc(sizeof(CBed12));
@@ -278,7 +280,32 @@ CBed12 *bamToBed12(const BamAlignment &bam, const string &chrom, bool skipDeleti
   bedPtr->chromEnd   = chromEnd;
   bedPtr->strand     = '+';
   if (bam.IsReverseStrand() == true) bedPtr->strand = '-';
+  if (bam.IsSecondMate() == true)
+  {
+    if (bedPtr->strand == '-')
+    {
+      bedPtr->strand = '+';
+    }
+    else
+    {
+      bedPtr->strand = '-';
+    }
+  }
   bedPtr->score = 1.0;
+  if (collapser)
+  {
+    char delims[]   = "-";
+    int fieldNum    = 0;
+    char **infos    = NULL;
+    int infoNum     = 0;
+    infos = splitString(const_cast<char *>(readName.c_str()), delims, &infoNum);
+    if (infoNum == 2)
+    {
+      if (isdigit(infos[1][0]))
+        bedPtr->score = atof(infos[1]);
+    }
+    freeWords(infos, infoNum); // free memory
+  }
   bedPtr->next  = NULL;
   bedPtr->thickStart = bedPtr->chromStart;
   bedPtr->thickEnd = bedPtr->chromStart;
@@ -289,15 +316,16 @@ CBed12 *bamToBed12(const BamAlignment &bam, const string &chrom, bool skipDeleti
   bedPtr->blockCount = blockCount;
   bedPtr->blockSizes = (int *)safeMalloc(sizeof(int) * bedPtr->blockCount);
   bedPtr->chromStarts = (int *)safeMalloc(sizeof(int) * bedPtr->blockCount);
-  for (i = 0; i < blockCount - 1; i++)
+  for (i = 0; i < blockCount; i++) // modified and remove the 1
   {
     bedPtr->blockSizes[i] = bedBlocks[i]->chromEnd - bedBlocks[i]->chromStart;
     bedPtr->chromStarts[i] = bedBlocks[i]->chromStart - bedPtr->chromStart;
   }
+  freeBed6Vector(bedBlocks);
   return bedPtr;
 }
 
-double readSEBamToBed12Map(BamReader &reader, chromBed12Map &bed12Hash, bool skipDeletion, bool skipSplice)
+double readSEBamToBed12Map(BamReader &reader, chromBed12Map &bed12Hash, int skipDeletion, int skipSplice, int collapser, int skipBigClip, int skipSoft)
 // must at same chromosome
 {
   int i            = 0;
@@ -313,8 +341,28 @@ double readSEBamToBed12Map(BamReader &reader, chromBed12Map &bed12Hash, bool ski
   {
     if (bam.IsMapped() == true)
     {
+      if (skipSplice == 2)
+      {
+        string cigar = BuildCigarString(bam.CigarData);
+        if (cigar.find('N') != std::string::npos) continue; // discard the reads with N tag (intron)
+      }
+      if (skipBigClip)
+      {
+        int leftClipLen  = 0;
+        int rightClipLen = 0;
+        string cigar = BuildCigarString(bam.CigarData);
+        getAllClipLen(cigar, &leftClipLen, &rightClipLen);
+        if (leftClipLen >= 20 || rightClipLen >= 20) continue;
+      }
+      if (skipSoft)
+      {
+        string cigar = BuildCigarString(bam.CigarData);
+        char *cigarStr  = const_cast<char*>(cigar.c_str());
+        char *Spos   = strchr(cigarStr, 'S'); // discard the reads with S tag (soft clip)
+        if (Spos != NULL) continue;
+      }
       string chrom = refs.at(bam.RefID).RefName;
-      CBed12 *bed12Ptr = bamToBed12(bam, chrom, skipDeletion, skipSplice);
+      CBed12 *bed12Ptr = bamToBed12(bam, chrom, skipDeletion, skipSplice, collapser);
       bed12Hash[chrom].push_back(bed12Ptr);
       totalNum++;
     }
@@ -322,7 +370,7 @@ double readSEBamToBed12Map(BamReader &reader, chromBed12Map &bed12Hash, bool ski
   return totalNum;
 }
 
-double readPEBamToBed6MapNew(BamReader &reader, chromBed6Map &bed6Hash, int maxInsertLen)
+double readPEBamToBed12Map(BamReader &reader, chromBed12Map &bed12Hash, int skipDeletion, int skipSplice, int collapser, int skipBigClip, int skipSoft)
 // must at same chromosome
 {
   int i            = 0;
@@ -350,6 +398,194 @@ double readPEBamToBed6MapNew(BamReader &reader, chromBed6Map &bed6Hash, int maxI
         }
         else
         {
+          if (skipSplice == 2)
+          {
+            string cigar1 = BuildCigarString(bam1.CigarData);
+            if (cigar1.find('N') != std::string::npos) continue; // discard the reads with N tag (intron)
+            string cigar2 = BuildCigarString(bam2.CigarData);
+            if (cigar2.find('N') != std::string::npos) continue; // discard the reads with N tag (intron)
+          }
+          if (skipBigClip)
+          {
+            int leftClipLen  = 0;
+            int rightClipLen = 0;
+            string cigar1 = BuildCigarString(bam1.CigarData);
+            getAllClipLen(cigar1, &leftClipLen, &rightClipLen);
+            if (leftClipLen >= 20 || rightClipLen >= 20) continue;
+            leftClipLen  = 0;
+            rightClipLen = 0;
+            string cigar2 = BuildCigarString(bam2.CigarData);
+            getAllClipLen(cigar2, &leftClipLen, &rightClipLen);
+            if (leftClipLen >= 20 || rightClipLen >= 20) continue;
+          }
+          if (skipSoft)
+          {
+            string cigar1 = BuildCigarString(bam1.CigarData);
+            char *cigarStr1  = const_cast<char*>(cigar1.c_str());
+            char *Spos1   = strchr(cigarStr1, 'S'); // discard the reads with S tag (soft clip)
+            if (Spos1 != NULL) continue;
+            string cigar2 = BuildCigarString(bam2.CigarData);
+            char *cigarStr2  = const_cast<char*>(cigar2.c_str());
+            char *Spos2   = strchr(cigarStr2, 'S'); // discard the reads with S tag (soft clip)
+            if (Spos2 != NULL) continue;
+          }
+          string chrom1 = refs.at(bam1.RefID).RefName;
+          string chrom2 = refs.at(bam2.RefID).RefName;
+          CBed12 *bed1 = bamToBed12(bam1, chrom1, skipDeletion, skipSplice, collapser);
+          CBed12 *bed2 = bamToBed12(bam2, chrom2, skipDeletion, skipSplice, collapser);
+          CBed12 *bed12Ptr = mergeTwoBed12ToBed12(bed1, bed2);
+          bed12Hash[chrom1].push_back(bed12Ptr);
+          freeBed12Item(bed1);
+          freeBed12Item(bed2);
+          totalNum++;
+        }
+      }
+    }
+  }
+  return totalNum;
+}
+
+int getAllClipLen(string &cigarData, int *leftClipLen, int *rightClipLen)
+// get left or right soft length
+{
+  char *cigar = const_cast<char *>(cigarData.c_str());
+  int i = 0;
+  int start = 0;
+  int tag = 0;
+  for (i = 0; i < strlen(cigar); i++)
+  {
+    char c = cigar[i];
+    if (!isdigit(c))
+    {
+      tag += 1;
+      cigar[i] = '\0';
+      int len = atoi(cigar + start);
+      switch ( c )
+      {
+      case 'S' :
+      case 'H' :
+        if (tag == 1)
+        {
+          *leftClipLen = len;
+        }
+        else
+        {
+          *rightClipLen = len;
+        }
+        break;
+      }
+      cigar[i] = c;
+      start = i + 1;
+    }
+  }
+  if (*leftClipLen > 0 || *rightClipLen > 0) return 1;
+  return 0;
+}
+
+/*
+double readPEBamToBed6MapNew(BamReader &reader, chromBed6Map &bed6Hash, int maxInsertLen)
+// must at same chromosome
+{
+  int i            = 0;
+  double totalNum  = 0;
+  int insertSize   = 0;
+  // get header & reference information
+  reader.Rewind();
+  string header  = reader.GetHeaderText();
+  RefVector refs = reader.GetReferenceData();
+  // rip through the BAM file and convert each mapped entry to BED
+  BamAlignment bam1;
+  BamAlignment bam2;
+  while (reader.GetNextAlignment(bam1)) {
+
+    reader.GetNextAlignment(bam2);
+    if (bam1.Name != bam2.Name) {
+      while (bam1.Name != bam2.Name)
+      {
+        if (bam1.IsPaired())
+        {
+          cerr << "*****WARNING: Query " << bam1.Name
+               << " is marked as paired, but its mate does not occur"
+               << " next to it in your BAM file.  Skipping. " << endl;
+        }
+        bam1 = bam2;
+        reader.GetNextAlignment(bam2);
+      }
+        string chrom1 = refs.at(bam1.RefID).RefName;
+        string chrom2 = refs.at(bam2.RefID).RefName;
+        CBed6 *bed1 = bamToBed6(bam1, chrom1);
+        CBed6 *bed2 = bamToBed6(bam2, chrom2);
+        CBed6 *bed6Ptr = mergeTwoBed6(bed1, bed2);
+        freeBed6Item(bed1);
+        freeBed6Item(bed2);
+        if (abs(bed6Ptr->chromEnd - bed6Ptr->chromStart) > maxInsertLen)
+        {
+          freeBed6Item(bed6Ptr);
+          continue;
+        }
+        else {
+          bed6Hash[chrom1].push_back(bed6Ptr);
+          totalNum++;
+        }
+    }
+    else if (bam1.IsPaired() && bam2.IsPaired()) {
+      string chrom1 = refs.at(bam1.RefID).RefName;
+      string chrom2 = refs.at(bam2.RefID).RefName;
+      CBed6 *bed1 = bamToBed6(bam1, chrom1);
+      CBed6 *bed2 = bamToBed6(bam2, chrom2);
+      CBed6 *bed6Ptr = mergeTwoBed6(bed1, bed2);
+      freeBed6Item(bed1);
+      freeBed6Item(bed2);
+      if (abs(bed6Ptr->chromEnd - bed6Ptr->chromStart) > maxInsertLen)
+      {
+        freeBed6Item(bed6Ptr);
+        continue;
+      }
+      else {
+        bed6Hash[chrom1].push_back(bed6Ptr);
+        totalNum++;
+      }
+    }
+  }
+
+  return totalNum;
+}*/
+
+double readPEBamToBed6MapNew(BamReader &reader, chromBed6Map &bed6Hash, int maxInsertLen, int skipSplice)
+// must at same chromosome
+{
+  int i            = 0;
+  double totalNum  = 0;
+  int insertSize   = 0;
+  // get header & reference information
+  reader.Rewind();
+  string header  = reader.GetHeaderText();
+  RefVector refs = reader.GetReferenceData();
+  // rip through the BAM file and convert each mapped entry to BED
+  BamAlignment bam1;
+  BamAlignment bam2;
+  while (reader.GetNextAlignment(bam1))
+  {
+    if (bam1.IsMapped() && bam1.IsPaired() && bam1.RefID == bam1.MateRefID) // same chrom
+    {
+      // get paired bam items
+      reader.GetNextAlignment(bam2);
+      if (bam2.IsMapped())
+      {
+        if (bam1.Name != bam2.Name)
+        {
+          fprintf(stderr, "*****WARNING: Query is marked as paired, \n but its mate does not occur next to it in your BAM file. Skipping.\n");
+          continue;
+        }
+        else
+        {
+          if (skipSplice == 2)
+          {
+            string cigar1 = BuildCigarString(bam1.CigarData);
+            if (cigar1.find('N') != std::string::npos) continue; // discard the reads with N tag (intron)
+            string cigar2 = BuildCigarString(bam2.CigarData);
+            if (cigar2.find('N') != std::string::npos) continue; // discard the reads with N tag (intron)
+          }
           string chrom1 = refs.at(bam1.RefID).RefName;
           string chrom2 = refs.at(bam2.RefID).RefName;
           CBed6 *bed1 = bamToBed6(bam1, chrom1);
@@ -366,50 +602,6 @@ double readPEBamToBed6MapNew(BamReader &reader, chromBed6Map &bed6Hash, int maxI
             bed6Hash[chrom1].push_back(bed6Ptr);
             totalNum++;
           }
-        }
-      }
-    }
-  }
-  return totalNum;
-}
-
-double readPEBamToBed12Map(BamReader &reader, chromBed12Map &bed12Hash, bool skipDeletion, bool skipSplice)
-// must at same chromosome
-{
-  int i            = 0;
-  double totalNum  = 0;
-  int insertSize   = 0;
-  // get header & reference information
-  reader.Rewind();
-  string header  = reader.GetHeaderText();
-  RefVector refs = reader.GetReferenceData();
-  // rip through the BAM file and convert each mapped entry to BED
-  BamAlignment bam1;
-  BamAlignment bam2;
-  while (reader.GetNextAlignment(bam1))
-  {
-    if (bam1.IsMapped() && bam1.IsPaired() && bam1.RefID == bam1.MateRefID) // same chrom
-    {
-      // get paired bam items
-      reader.GetNextAlignment(bam2);
-      if (bam2.IsMapped())
-      {
-        if (bam1.Name != bam2.Name)
-        {
-          fprintf(stderr, "*****WARNING: Query is marked as paired, \n but its mate does not occur next to it in your BAM file. Skipping.\n");
-          continue;
-        }
-        else
-        {
-          string chrom1 = refs.at(bam1.RefID).RefName;
-          string chrom2 = refs.at(bam2.RefID).RefName;
-          CBed12 *bed1 = bamToBed12(bam1, chrom1, skipDeletion, skipSplice);
-          CBed12 *bed2 = bamToBed12(bam2, chrom2, skipDeletion, skipSplice);
-          CBed12 *bed12Ptr = mergeTwoBed12ToBed12(bed1, bed2);
-          bed12Hash[chrom1].push_back(bed12Ptr);
-          freeBed12Item(bed1);
-          freeBed12Item(bed2);
-          totalNum++;
         }
       }
     }
@@ -607,7 +799,7 @@ double readBamToBedSignalMap(BamReader &reader, chromBedMap &bedHash, int keepDu
   return totalNum;
 }
 
-double readBamToBed6Map(BamReader &reader, chromBed6Map &bed6Hash, int keepDup)
+double readBamToBed6Map(BamReader &reader, chromBed6Map &bed6Hash, int keepDup, int skipSplice)
 {
   int i           = 0;
   char delims[]   = "-";
@@ -627,6 +819,11 @@ double readBamToBed6Map(BamReader &reader, chromBed6Map &bed6Hash, int keepDup)
   {
     if (bam.IsMapped() == true)
     {
+      if (skipSplice == 2)
+      {
+        string cigar = BuildCigarString(bam.CigarData);
+        if (cigar.find('N') != std::string::npos) continue; // discard the reads with N tag (intron)
+      }
       string readName    = bam.Name;
       string chrom  = refs.at(bam.RefID).RefName;
       char strand = '+';
@@ -668,52 +865,6 @@ double readBamToBed6Map(BamReader &reader, chromBed6Map &bed6Hash, int keepDup)
       i++;
     }
   }
-  return totalNum;
-}
-
-
-double normalizedBed6Reads(chromBed6Map &bed6Hash)
-{
-  double totalNum = 0;
-  chromBed6Map::iterator it;
-  map<string, int> mapReads;
-  for (it = bed6Hash.begin(); it != bed6Hash.end(); ++it)
-  {
-    bed6Vector bedList = it->second;
-    if (bedList.size() >= 1)
-    {
-      for (bed6Vector::iterator vecItr = bedList.begin(); vecItr != bedList.end(); vecItr++)
-      {
-        CBed6 *bed6 = *vecItr;
-        mapReads[bed6->name] = 0;
-      } // for end
-    }
-  } // for bed hash
-  for (it = bed6Hash.begin(); it != bed6Hash.end(); ++it)
-  {
-    bed6Vector bedList = it->second;
-    if (bedList.size() >= 1)
-    {
-      for (bed6Vector::iterator vecItr = bedList.begin(); vecItr != bedList.end(); vecItr++)
-      {
-        CBed6 *bed6 = *vecItr;
-        mapReads[bed6->name]++;
-      } // for end
-    }
-  } // for bed hash
-  for (it = bed6Hash.begin(); it != bed6Hash.end(); ++it)
-  {
-    bed6Vector bedList = it->second;
-    if (bedList.size() >= 1)
-    {
-      for (bed6Vector::iterator vecItr = bedList.begin(); vecItr != bedList.end(); vecItr++)
-      {
-        CBed6 *bed6 = *vecItr;
-        bed6->score = bed6->score / mapReads[bed6->name];
-        totalNum += bed6->score;
-      } // for end
-    }
-  } // for bed hash
   return totalNum;
 }
 
@@ -1118,7 +1269,7 @@ double readPEBamToBedMap(BamReader &reader, chromBedMap &bedHash, map<string, in
   return totalNum;
 }
 
-double readBamToSamMapNew(BamReader &reader, chromSamMap &samHash, int keepDup, int maxLocusNum)
+double readBamToSamMapNew(BamReader &reader, chromSamMap &samHash, int keepDup, int maxLocusNum, int skipSplice)
 {
   int i           = 0;
   char delims[]   = "-";
@@ -1147,6 +1298,11 @@ double readBamToSamMapNew(BamReader &reader, chromSamMap &samHash, int keepDup, 
         nhVal = 1;
       }
       if (nhVal > maxLocusNum) continue;
+      string cigar    = BuildCigarString(bam.CigarData);
+      char *cigarStr  = const_cast<char*>(cigar.c_str());
+      char *Npos      = strchr(cigarStr, 'N'); // discard the reads with N tag (intron)
+      if (Npos != NULL && skipSplice) continue;
+
       string readName    = bam.Name;
       samPtr             = (CSam *)safeMalloc(sizeof(CSam));
       string chrom       = refs.at(bam.RefID).RefName;
@@ -1156,8 +1312,8 @@ double readBamToSamMapNew(BamReader &reader, chromSamMap &samHash, int keepDup, 
       samPtr->readName   = strClone(const_cast<char*>(readName.c_str()));
       samPtr->strand     = '+';
       if (bam.IsReverseStrand() == true) samPtr->strand = '-';
-      string cigar    = BuildCigarString(bam.CigarData);
-      samPtr->cigar   = strClone(const_cast<char*>(cigar.c_str()));
+
+      samPtr->cigar   = strClone(cigarStr);
       string readSeq  = bam.QueryBases;
       samPtr->readSeq = strClone(const_cast<char*>(readSeq.c_str()));
       string mdz;
@@ -1293,7 +1449,8 @@ int getRegionCounts(BamReader &reader, char *chrom, int chromStart, int chromEnd
 {
   int regionReadNum = 0;
   reader.Rewind();
-  int id = reader.GetReferenceID(chrom);
+  string chromStr(chrom);
+  int id = reader.GetReferenceID(chromStr);
   BamRegion region(id, chromStart, id, chromEnd);
   // rip through the BAM file
   if ( (id != -1) && (reader.SetRegion(region)) )
@@ -1452,6 +1609,7 @@ void copySam(CSam *tSam, CSam *oSam)
   tSam->readLen    = oSam->readLen;
   tSam->readLen    = oSam->readLen;
   tSam->readNum    = oSam->readNum;
+  tSam->misMatches = oSam->misMatches;
   tSam->readSeq    = strClone(oSam->readSeq);
   tSam->readName   = strClone(oSam->readName);
   tSam->mdz        = strClone(oSam->mdz);
