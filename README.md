@@ -3,6 +3,7 @@ A new and unified software with Poisson and Hypergeometric modeling, to identify
 - [rbsSeeker](#rbsSeeker)
 - [installation](#installation)
 - [usage](#usage)
+- [output](#output)
 
 # installation
 * It's very easy to install rbsSeeker on a linux server with following commands:
@@ -15,7 +16,7 @@ sh install.sh
 ```
 
 # usage
-Pleae note that rbsSeeker can only accept bam from single-end reads.
+Pleae note that rbsSeeker can only accept bam from single-end reads as input for peak/site calling.
 
 The available options of rbsSeeker are as follow:
 
@@ -49,3 +50,5 @@ Usage: rbsSeeker [options] --fa <genome file> --fai <genome fai> --bam <mapped a
   -s, --min-ratio<double>         : minimum ratio for variation [default>=0]
   -S, --max-ratio<double>         : maximum ratio for variation [default<=1.0]
 ```
+
+# output
