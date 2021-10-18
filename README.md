@@ -41,17 +41,17 @@ samtools faidx hg38.fa
 Pleae note that rbsSeeker can only accept bam from single-end reads as input for peak/site calling.
 
 # output
-rbsSeeker may have 8 following output files in bed format (0-base) depends on the input arguments and your dataset.
+rbsSeeker may have 8 following output files in `bed format (0-base)` depends on the input arguments and your dataset.
 | Output file           | Description
 | -----------           |----------
-| `*_Peak.bed`          | 
-| `*_PeakHeight.bed`    | 
-| `*_Mutation.bed`      | 
-| `*_CT.bed`            | 
-| `*_Truncation.bed`    | 
-| `*_Deletion.bed`      | 
-| `*_Insertion.bed`     | 
-| `*_End.bed`           | 
+| `*_Peak.bed`          | identified peak-calling results
+| `*_PeakHeight.bed`    | identified peak-calling results
+| `*_Mutation.bed`      | identified mutation sites
+| `*_CT.bed`            | identified C-to-T mutation sites when set `--cvs CT`
+| `*_Truncation.bed`    | identified truncation sites
+| `*_Deletion.bed`      | identified deletion sites
+| `*_Insertion.bed`     | identified insertion sites
+| `*_End.bed`           | identified ending sites
 
 
 Here's the description of columns in the outputs:
