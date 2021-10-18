@@ -53,7 +53,7 @@ Output file | Description
 `end sites` | 
 
 
-Here's column descriptions in the outputs:
+Here's the description of columns in the outputs:
 
 Column name | Description
 -----------|----------
