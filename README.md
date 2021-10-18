@@ -8,11 +8,17 @@ A new and unified software with Poisson and Hypergeometric modeling, to identify
 # installation
 * It's very easy to install rbsSeeker on a linux server with following commands:
 ```
+# suppose your path to install software is /username/software
+
+cd /username/software
+
 git clone https://github.com/kerenzhou062/rbsSeeker.git
 
 cd ./rbsSeeker
 
 sh install.sh
+
+export PATH=$PATH:/username/software/rbsSeeker/bin
 ```
 
 # usage
