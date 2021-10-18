@@ -1,7 +1,7 @@
 # rbsSeeker
 A new and unified software with Poisson and Hypergeometric modeling, to identify significant RBP-binding events from various kinds of CLIP-seq data, such as HITS-CLIP, PAR-CLIP, iCLIP and eCLIP.
 
-rbsSeeker can identify highly convinced peaks or individual cross-linking sites, of which includes deletions, truncations and mutations.
+rbsSeeker can identify highly convinced peaks and individual cross-linking sites, of which includes deletions, truncations and mutations.
 
 - [rbsSeeker](#rbsSeeker)
 - [installation](#installation)
