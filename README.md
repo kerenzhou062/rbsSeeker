@@ -15,6 +15,10 @@ sh install.sh
 ```
 
 # usage
+Pleae note that rbsSeeker can only accept bam from single-end reads.
+
+The available options of rbsSeeker are as follow:
+
 ```shell
 Usage: rbsSeeker [options] --fa <genome file> --fai <genome fai> --bam <mapped alignments>
 [options]
