@@ -47,8 +47,19 @@ samtools faidx hg38.fa
 Pleae note that rbsSeeker can only accept bam from single-end reads as input for peak/site calling.
 
 # output
-rbsSeeker may have 8 output files in bed format depends on the input arguments and your dataset. There are concensus columns in the outputs:
-colum name | Description
+rbsSeeker may have 8 output files in bed format (0-base) depends on the input arguments and your dataset.
+* `peaks`
+* `peaks`
+* `peaks`
+* `peaks`
+* `peaks`
+* `peaks`
+* `peaks`
+* `peaks`
+
+Here's column descriptions in the outputs:
+
+Column name | Description
 -----------|----------
 `chrom` | chromosome name
 `chromStart` | start genomic coordiate of specific event (e.g. peak, deletion, truncation or mutation) (0-base)
@@ -57,15 +68,15 @@ colum name | Description
 `score` | RPM of height
 `strand` | genomic sense (+) or antisense (-) strand of specific event
 `extendSeq` | sequence extended ± 10bp from the individual sites or the peak center
-`motifPos` | the start position of input motif in `extendSeq` column. Starts with 0.
-
-## peaks
-## peaks height
-## mutation sites
-## truncation sites
-## insertion sites
-## deletion sites
-## end sites
+`motifPos` | start position of input motif in `extendSeq` column. Starts with `0`. `-1` means there is no motif found in `extendSeq`.
+`type` | indicate the type of peak or site
+`log10(p-value)` | log10 of p-value.
+`log10(q-value)` | log10 of q-value.
+`readNum` | read number.
+`height` | maximum peak or site height.
+`heightRpm` | maximum peak or site height in Reads Per Million (RPM).
+`mfold` | fold enrichment ( maximum height / average coverage).
+`ratio` | ratio of specific event ( read number / total read number).
 
 # usage
 The available options of rbsSeeker are as follow:
