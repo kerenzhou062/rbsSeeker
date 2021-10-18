@@ -41,38 +41,38 @@ Pleae note that rbsSeeker can only accept bam from single-end reads as input for
 
 # output
 rbsSeeker may have 8 following output files in bed format (0-base) depends on the input arguments and your dataset.
-Output file | Description
------------|----------
-`*_Peak.bed` | 
-`*_PeakHeight.bed` | 
-`*_Mutation.bed` | 
-`*_CT.bed` | 
-`*_Truncation.bed` | 
-`*_Deletion.bed` | 
-`*_Insertion.bed` | 
-`*_End.bed` | 
+Output file           | Description
+-----------           |----------
+`*_Peak.bed`          | 
+`*_PeakHeight.bed`    | 
+`*_Mutation.bed`      | 
+`*_CT.bed`            | 
+`*_Truncation.bed`    | 
+`*_Deletion.bed`      | 
+`*_Insertion.bed`     | 
+`*_End.bed`           | 
 
 
 Here's the description of columns in the outputs:
 
-Column name | Description
------------|----------
-`chrom` | chromosome name
-`chromStart` | start genomic coordiate of specific event (e.g. peak, deletion, truncation or mutation) (0-base)
-`chromEnd` | end genomic coordiate of specific event
-`name` | uniq event id
-`score` | RPM of height
-`strand` | genomic sense (+) or antisense (-) strand of specific event
-`extendSeq` | sequence extended ± 10bp from the individual sites or the peak center
-`motifPos` | start position of input motif in `extendSeq` column. Starts with `0`. `-1` means there is no motif found in `extendSeq`.
-`type` | indicate the type of peak or site
-`log10(p-value)` | log10 of p-value.
-`log10(q-value)` | log10 of q-value.
-`readNum` | read number.
-`height` | maximum peak or site height.
-`heightRpm` | maximum peak or site height in Reads Per Million (RPM).
-`mfold` | fold enrichment ( maximum height / average coverage).
-`ratio` | ratio of specific event ( read number / total read number).
+| Column name      | Description
+| -----------      |----------
+| `chrom`          | chromosome name
+| `chromStart`     | start genomic coordiate of specific event (e.g. peak, deletion, truncation or mutation) (0-base)
+| `chromEnd`       | end genomic coordiate of specific event
+| `name`           | uniq event id
+| `score`          | RPM of peak/site height
+| `strand`         | genomic sense (+) or antisense (-) strand of specific event
+| `extendSeq`      | sequence extended ± 10bp from the individual sites or the peak center
+| `motifPos`       | start position of input motif in `extendSeq` column. Starts with `0`. `-1` means there is no motif found in `extendSeq`.
+| `type`           | indicate the type of peak or site
+| `log10(p-value)` | log10 of p-value.
+| `log10(q-value)` | log10 of q-value.
+| `readNum`        | read number.
+| `height`         | maximum peak/site height.
+| `heightRpm`      | maximum peak/site height in Reads Per Million (RPM).
+| `mfold`          | fold enrichment ( maximum height / average coverage).
+| `ratio`          | ratio of specific event ( read number / total read number).
 
 # usage
 The available options of rbsSeeker are as follow:
