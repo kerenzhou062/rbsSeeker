@@ -5,9 +5,8 @@ A new and unified software with Poisson and Hypergeometric modeling, to identify
 - [usage](#usage)
 
 # installation
-* It's very easy to install rbsSeeker on a linux server.
+* It's very easy to install rbsSeeker on a linux server with following commands:
 ```
-
 git clone https://github.com/kerenzhou062/rbsSeeker.git
 
 cd ./rbsSeeker
