@@ -24,9 +24,9 @@ Usage: rbsSeeker [options] --fa <genome file> --fai <genome fai> --bam <mapped a
   -h, --help                      : help informations
   -R, --PCR                       : remove pcr duplictions[default is not removed]
   -e, --rm                        : remove the muations in start or end sites[default is not removed]
-  --fa <string>                  : genome file with FASTA format
-  --fai <string>                 : genome fai file with FAI format
-  --bam <string>                 : alignments file with BAM format
+  --fa <string>                   : genome file with FASTA format
+  --fai <string>                  : genome fai file with FAI format
+  --bam <string>                  : alignments file with BAM format
   -o, --outdir <string>           : output dir
   -P, --prefix <string>           : prefix for output files
   -s, --transcriptome <int>       : transcriptome size[e.g. in human, default=129600000]
@@ -41,7 +41,7 @@ Usage: rbsSeeker [options] --fa <genome file> --fai <genome fai> --bam <mapped a
   -d, --min-var <double>          : minimum read number for calling a variational site [Default=1]
   -p, --pval <double>             : minimum p value for calling a site [Default<=0.05]
   -q, --qval <double>             : minimum q value for calling a site [Default<=0.05]
-  --primer<string>               : primer sequene for removing the mispriming [default=NULL]
+  --primer<string>                : primer sequene for removing the mispriming [default=NULL]
   -u, --brc-len<int>              : barcode length. extend the barcode length for mispriming[default=0]
   -s, --min-ratio<double>         : minimum ratio for variation [default>=0]
   -S, --max-ratio<double>         : maximum ratio for variation [default<=1.0]
