@@ -50,14 +50,14 @@ Pleae note that rbsSeeker can only accept bam from single-end reads as input for
 rbsSeeker may have 8 output files in bed format depends on the input arguments and your dataset. There are concensus columns in the outputs:
 colum name | Description
 -----------|----------
-[chrom] | chromosome name
-[chromStart] | start genomic coordiate of specific event (e.g. peak, deletion, truncation or mutation) (0-base)
-[chromEnd] | end genomic coordiate of specific event
-[name] | uniq event id
-[score] | RPM of height
-[strand] | genomic sense (+) or antisense (-) strand of specific event
-[extendSeq] | sequence extended ± 10bp from the individual sites or the peak center
-[motifPos] | the start position of input motif in `extendSeq` column. Starts with 0.
+[`chrom`](#) | chromosome name
+[`chromStart`] | start genomic coordiate of specific event (e.g. peak, deletion, truncation or mutation) (0-base)
+[`chromEnd`] | end genomic coordiate of specific event
+[`name`] | uniq event id
+[`score`] | RPM of height
+[`strand`] | genomic sense (+) or antisense (-) strand of specific event
+[`extendSeq`] | sequence extended ± 10bp from the individual sites or the peak center
+[`motifPos`] | the start position of input motif in `extendSeq` column. Starts with 0.
 
 ## peaks
 ## peaks height
