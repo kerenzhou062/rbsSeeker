@@ -41,14 +41,17 @@ Pleae note that rbsSeeker can only accept bam from single-end reads as input for
 
 # output
 rbsSeeker may have 8 following output files in bed format (0-base) depends on the input arguments and your dataset.
-* `peaks`
-* `peaks height`
-* `mutation sites`
-* `specific mutation sites`
-* `truncation sites`
-* `insertion sites`
-* `deletion sites`
-* `end sites`
+Output file | Description
+-----------|----------
+`peaks` | 
+`peaks height` | 
+`mutation sites` | 
+`specific mutation sites` | 
+`truncation sites` | 
+`insertion sites` | 
+`deletion sites` | 
+`end sites` | 
+
 
 Here's column descriptions in the outputs:
 
