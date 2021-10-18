@@ -68,7 +68,7 @@ Here's the description of columns in the outputs:
 | `type`           | indicate the type of peak or site
 | `log10(p-value)` | log10 of p-value.
 | `log10(q-value)` | log10 of q-value.
-| `readNum`        | read number.
+| `readNum`        | read number of peak/site.
 | `height`         | maximum peak/site height.
 | `heightRpm`      | maximum peak/site height in Reads Per Million (RPM).
 | `mfold`          | fold enrichment ( maximum height / average coverage).
