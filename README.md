@@ -81,12 +81,88 @@ Here's the description of columns in the outputs:
 # example
 Here is the example showed how to use `rbsSeeker` to identify m6A modification sites from miCLIP data.
 
-* Supposed you have properly processed the raw reads from miCLIP data ([Abcam antibody](https://www.nature.com/articles/nmeth.3453/figures/1)) (e.g. adapter trimmed, PCR duplicates removed) and aligned reads to the propper genome. So you have the reads alignment results (`miCLIP.sorted.bam`)
-* Run `rbsSeeker` on `miCLIP.sorted.bam`:<BR>
+* Supposed you have properly processed the raw reads from miCLIP data (e.g. adapter trimmed, PCR duplicates removed) and aligned reads to the propper genome. So you have the reads alignment results (`miCLIP.sorted.bam`)
+* Run `rbsSeeker` on `miCLIP.sorted.bam`<BR>
 ```bash
 #rbsSeeker m6A sites calling
 rbsSeeker -T CT -L 20 -t 129600000 -n 1 -H 3 -d 1 -p 0.05 -q 0.1 \
   -o ./output -P miCLIP --fa hg38.fa --fai hg38.fa.fai --bam miCLIP.sorted.bam > miCLIP.rbsSeeker.log
+```
+* Output files from `rbsSeeker` results<BR>
+    * miCLIP_CT.bed
+    * miCLIP_End.bed
+    * miCLIP_Insertion.bed
+    * miCLIP_Mutation.bed
+    * miCLIP_Peak.bed
+    * miCLIP_PeakHeight.bed
+    * miCLIP_Truncation.bed
+
+* Extract potential m6A sites (DRACH motif) from `miCLIP_CT.bed`, `miCLIP_Mutation.bed` and `miCLIP_Truncation.bed` (supposed the miCLIP was perform with [Abcam antibody](https://www.nature.com/articles/nmeth.3453/figures/1))<BR>
+    * substitutions at m6A site
+```bash
+#substitutions at m6A site
+awk 'BEGIN{FS="\t";OFS="\t";}
+{
+  if (FNR >1) {
+    if ($8 == 8) {
+      seq = substr($7, 9, 5);
+      if (seq ~ /[AGT][AG]AC[ACT]/) {
+        $4="mut|"seq"|"FNR;
+        print $1, $2, $3, $4, $5, $6;
+      }
+    }
+  }
+}' miCLIP_Mutation.bed > miCLIP.mut.bed
+```
+
+    * C->T mucations at +1 position of m6A site
+```bash
+#C->T mucations at +1 position of m6A site
+awk 'BEGIN{FS="\t";OFS="\t";}
+{
+  if (FNR >1) {
+    if ($8 == 7) {
+      if ($6 == "+") {
+        $2 = $2 - 1;
+        $3 = $2 + 1;
+      }else{
+        $3 = $3 + 1;
+        $2 = $3 - 1;
+      }
+      seq = substr($7, 8, 5);
+      if (seq ~ /[AGT][AG]AC[ACT]/) {
+        $4="CT|"seq"|"FNR;
+        print $1, $2, $3, $4, $5, $6;
+      }
+    }
+  }
+}' miCLIP_CT.bed > miCLIP.CT.bed
+```
+    * truncations at +2 position of m6A site
+```bash
+#truncations at +2 position of m6A site
+awk 'BEGIN{FS="\t";OFS="\t";}
+{
+  if (FNR >1) {
+    if ($8 == 6) {
+      if ($6 == "+") {
+        $2 = $2 - 2;
+        $3 = $2 + 1;
+      }else{
+        $3 = $3 + 2;
+        $2 = $3 - 1;
+      }
+      seq = substr($7, 7, 5);
+      if (seq ~ /[AGT][AG]AC[ACT]/) {
+        $4="trunc|"seq"|"FNR;
+        print $1, $2, $3, $4, $5, $6;
+      }
+    }
+  }
+}' miCLIP_Truncation.bed > miCLIP.trunc.bed
+
+#
+
 ```
 
 # usage
