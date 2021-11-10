@@ -161,7 +161,7 @@ rbsSeeker -T CT -L 20 -t 129600000 -n 1 -H 3 -d 1 -p 0.05 -q 0.1 \
           }
         }' miCLIP_Truncation.bed > miCLIP.trunc.bed
         ```
-* Pool identified sites together and get the final result `miCLIP.merge.bed` <BR>
+* Pool identified sites together and get the final result `miCLIP.merge.bed` ([`bedtools`](https://bedtools.readthedocs.io/en/latest/content/bedtools-suite.html) is required) <BR>
 ```bash
 cat miCLIP.mut.bed miCLIP.CT.bed miCLIP.trunc.bed | awk 'BEGIN{FS="\t";OFS="\t";}
   {
