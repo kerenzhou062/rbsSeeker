@@ -8,6 +8,8 @@ rbsSeeker can identify highly convinced peaks and individual cross-linking sites
 - [input](#input)
 - [output](#output)
 - [usage](#usage)
+- [acknowledgements](#acknowledgements)
+- [contact](#contact)
 
 # installation
 * It's very easy to install rbsSeeker on a linux server with following commands:
@@ -109,4 +111,9 @@ Usage: rbsSeeker [options] --fa <genome file> --fai <genome fai> --bam <mapped a
   -S, --max-ratio<double>         : maximum ratio for variation [default<=1.0]
 ```
 
+# acknowledgements
+Thanks a lot to everyone who contributed to the public code (e.g. BamTools) used by rbsSeeker.
 
+# contact
+\* Jian-Hua Yang <yangjh7@mail.sysu.edu.cn>, RNA Information Center, School of Life Sciences, Sun Yat-Sen University<BR>
+\* Keren Zhou <kzhou@coh.org>, Department of Systems Biology, Beckman Research Institute of City of Hope, Monrovia, CA, USA<BR>
