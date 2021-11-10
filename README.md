@@ -7,6 +7,7 @@ rbsSeeker can identify highly convinced peaks and individual cross-linking sites
 - [installation](#installation)
 - [input](#input)
 - [output](#output)
+- [example](#example)
 - [usage](#usage)
 - [acknowledgements](#acknowledgements)
 - [contact](#contact)
@@ -77,6 +78,17 @@ Here's the description of columns in the outputs:
 | `mfold`          | fold enrichment ( maximum height / average coverage).
 | `ratio`          | ratio of specific event ( read number / total read number).
 
+# example
+Here is the example showed how to use `rbsSeeker` to identify m6A modification sites from miCLIP data.
+
+* Supposed you have properly processed the raw reads from miCLIP data (e.g. adapter trimmed, PCR duplicates removed) and aligned reads to the propper genome. So you have the reads alignment results (`miCLIP.sorted.bam`)
+* Run `rbsSeeker`:
+`bash
+#rbsSeeker m6A sites calling
+rbsSeeker -T CT -L 20 -t 129600000 -n 1 -H 3 -d 1 -p 0.05 -q 0.1 \
+  -o ./output -P miCLIP --fa hg38.fa --fai hg38.fa.fai --bam "$INPUT_BAM" > miCLIP.rbsSeeker.log
+`
+
 # usage
 The available options of rbsSeeker are as follow:
 
@@ -115,5 +127,5 @@ Usage: rbsSeeker [options] --fa <genome file> --fai <genome fai> --bam <mapped a
 Thanks a lot to everyone who contributed to the public code (e.g. BamTools) used by rbsSeeker.
 
 # contact
-\* Jian-Hua Yang <yangjh7@mail.sysu.edu.cn>, RNA Information Center, School of Life Sciences, Sun Yat-Sen University<BR>
-\* Keren Zhou <kzhou@coh.org>, Department of Systems Biology, Beckman Research Institute of City of Hope, Monrovia, CA, USA<BR>
+* Jian-Hua Yang <yangjh7@mail.sysu.edu.cn>, RNA Information Center, School of Life Sciences, Sun Yat-Sen University<BR>
+* Keren Zhou <kzhou@coh.org>, Department of Systems Biology, Beckman Research Institute of City of Hope, Monrovia, CA, USA<BR>
