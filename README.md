@@ -82,7 +82,7 @@ Here's the description of columns in the outputs:
 Here is the example showed how to use `rbsSeeker` to identify m6A modification sites from miCLIP data.
 
 * Supposed you have properly processed the raw reads from miCLIP data (e.g. adapter trimmed, PCR duplicates removed) and aligned reads to the propper genome. So you have the reads alignment results (`miCLIP.sorted.bam`)
-* Run `rbsSeeker`:
+* Run `rbsSeeker`<BR>:
 `bash
 #rbsSeeker m6A sites calling
 rbsSeeker -T CT -L 20 -t 129600000 -n 1 -H 3 -d 1 -p 0.05 -q 0.1 \
