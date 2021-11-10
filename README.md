@@ -81,8 +81,8 @@ Here's the description of columns in the outputs:
 # example
 Here is an example that shows how to use `rbsSeeker` to identify N6-methyladenosine (`m6A`) sites at `single-base resolution` from `miCLIP` data.
 
-* Supposed you have properly processed the raw reads from miCLIP data (e.g. adapter trimmed, PCR duplicates removed) and aligned reads to the propper genome. So you have the reads alignment results (`miCLIP.sorted.bam`)
-* Run `rbsSeeker` on `miCLIP.sorted.bam`<BR>
+* Supposed the raw reads from miCLIP data were properly processed (e.g. adapter trimmed, PCR duplicates removed, bacode removed) and aligned to the propper genome (e.g. hg38). So then the reads alignment results (`miCLIP.sorted.bam`) were used for downstream analysis.
+* Run `rbsSeeker` on `miCLIP.sorted.bam`
 ```bash
 #rbsSeeker m6A sites calling, -t 129600000 is for human transcriptome
 rbsSeeker -T CT -L 20 -t 129600000 -n 1 -H 3 -d 1 -p 0.05 -q 0.1 \
@@ -97,7 +97,7 @@ rbsSeeker -T CT -L 20 -t 129600000 -n 1 -H 3 -d 1 -p 0.05 -q 0.1 \
     * miCLIP_PeakHeight.bed
     * miCLIP_Truncation.bed
 
-* Identify potential m6A sites (DRACH motif) (supposed the miCLIP was performed with [Abcam antibody](https://www.nature.com/articles/nmeth.3453/figures/1))<BR>
+* Identify potential m6A sites (DRACH motif) (supposed the miCLIP was performed with [Abcam antibody](https://www.nature.com/articles/nmeth.3453/figures/1))
     * Substitutions at m6A site from `miCLIP_CT.bed`
         ```bash
         #substitutions at m6A site
@@ -161,7 +161,7 @@ rbsSeeker -T CT -L 20 -t 129600000 -n 1 -H 3 -d 1 -p 0.05 -q 0.1 \
           }
         }' miCLIP_Truncation.bed > miCLIP.trunc.bed
         ```
-* Pool identified sites together and get the final result `miCLIP.merge.bed` ([`bedtools`](https://bedtools.readthedocs.io/en/latest/content/bedtools-suite.html) is required) <BR>
+* Pool identified sites together and get the final result `miCLIP.merge.bed` ([`bedtools`](https://bedtools.readthedocs.io/en/latest/content/bedtools-suite.html) is required)
 ```bash
 cat miCLIP.mut.bed miCLIP.CT.bed miCLIP.trunc.bed | awk 'BEGIN{FS="\t";OFS="\t";}
   {
