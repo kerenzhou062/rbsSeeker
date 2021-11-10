@@ -99,68 +99,68 @@ rbsSeeker -T CT -L 20 -t 129600000 -n 1 -H 3 -d 1 -p 0.05 -q 0.1 \
 
 * Extract potential m6A sites (DRACH motif) from `miCLIP_CT.bed`, `miCLIP_Mutation.bed` and `miCLIP_Truncation.bed` (supposed the miCLIP was perform with [Abcam antibody](https://www.nature.com/articles/nmeth.3453/figures/1))<BR>
     * substitutions at m6A site
-```bash
-#substitutions at m6A site
-awk 'BEGIN{FS="\t";OFS="\t";}
-{
-  if (FNR >1) {
-    if ($8 == 8) {
-      seq = substr($7, 9, 5);
-      if (seq ~ /[AGT][AG]AC[ACT]/) {
-        $4="mut|"seq"|"FNR;
-        print $1, $2, $3, $4, $5, $6;
-      }
-    }
-  }
-}' miCLIP_Mutation.bed > miCLIP.mut.bed
-```
+        ```bash
+        #substitutions at m6A site
+        awk 'BEGIN{FS="\t";OFS="\t";}
+        {
+          if (FNR >1) {
+            if ($8 == 8) {
+              seq = substr($7, 9, 5);
+              if (seq ~ /[AGT][AG]AC[ACT]/) {
+                $4="mut|"seq"|"FNR;
+                print $1, $2, $3, $4, $5, $6;
+              }
+            }
+          }
+        }' miCLIP_Mutation.bed > miCLIP.mut.bed
+        ```
 
     * C->T mucations at +1 position of m6A site
-```bash
-#C->T mucations at +1 position of m6A site
-awk 'BEGIN{FS="\t";OFS="\t";}
-{
-  if (FNR >1) {
-    if ($8 == 7) {
-      if ($6 == "+") {
-        $2 = $2 - 1;
-        $3 = $2 + 1;
-      }else{
-        $3 = $3 + 1;
-        $2 = $3 - 1;
-      }
-      seq = substr($7, 8, 5);
-      if (seq ~ /[AGT][AG]AC[ACT]/) {
-        $4="CT|"seq"|"FNR;
-        print $1, $2, $3, $4, $5, $6;
-      }
-    }
-  }
-}' miCLIP_CT.bed > miCLIP.CT.bed
-```
+        ```bash
+        #C->T mucations at +1 position of m6A site
+        awk 'BEGIN{FS="\t";OFS="\t";}
+        {
+          if (FNR >1) {
+            if ($8 == 7) {
+              if ($6 == "+") {
+                $2 = $2 - 1;
+                $3 = $2 + 1;
+              }else{
+                $3 = $3 + 1;
+                $2 = $3 - 1;
+              }
+              seq = substr($7, 8, 5);
+              if (seq ~ /[AGT][AG]AC[ACT]/) {
+                $4="CT|"seq"|"FNR;
+                print $1, $2, $3, $4, $5, $6;
+              }
+            }
+          }
+        }' miCLIP_CT.bed > miCLIP.CT.bed
+        ```
     * truncations at +2 position of m6A site
-```bash
-#truncations at +2 position of m6A site
-awk 'BEGIN{FS="\t";OFS="\t";}
-{
-  if (FNR >1) {
-    if ($8 == 6) {
-      if ($6 == "+") {
-        $2 = $2 - 2;
-        $3 = $2 + 1;
-      }else{
-        $3 = $3 + 2;
-        $2 = $3 - 1;
-      }
-      seq = substr($7, 7, 5);
-      if (seq ~ /[AGT][AG]AC[ACT]/) {
-        $4="trunc|"seq"|"FNR;
-        print $1, $2, $3, $4, $5, $6;
-      }
-    }
-  }
-}' miCLIP_Truncation.bed > miCLIP.trunc.bed
-
+        ```bash
+        #truncations at +2 position of m6A site
+        awk 'BEGIN{FS="\t";OFS="\t";}
+        {
+          if (FNR >1) {
+            if ($8 == 6) {
+              if ($6 == "+") {
+                $2 = $2 - 2;
+                $3 = $2 + 1;
+              }else{
+                $3 = $3 + 2;
+                $2 = $3 - 1;
+              }
+              seq = substr($7, 7, 5);
+              if (seq ~ /[AGT][AG]AC[ACT]/) {
+                $4="trunc|"seq"|"FNR;
+                print $1, $2, $3, $4, $5, $6;
+              }
+            }
+          }
+        }' miCLIP_Truncation.bed > miCLIP.trunc.bed
+        ```
 #
 
 ```
