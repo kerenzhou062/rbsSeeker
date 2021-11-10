@@ -79,7 +79,7 @@ Here's the description of columns in the outputs:
 | `ratio`          | ratio of specific event ( read number / total read number).
 
 # example
-Here is the example showed how to use `rbsSeeker` to identify N6-methyladenosine (`m6A`) sites at `single-base resolution` from `miCLIP` data.
+Here is an example showed how to use `rbsSeeker` to identify N6-methyladenosine (`m6A`) sites at `single-base resolution` from `miCLIP` data.
 
 * Supposed you have properly processed the raw reads from miCLIP data (e.g. adapter trimmed, PCR duplicates removed) and aligned reads to the propper genome. So you have the reads alignment results (`miCLIP.sorted.bam`)
 * Run `rbsSeeker` on `miCLIP.sorted.bam`<BR>
