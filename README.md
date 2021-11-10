@@ -97,7 +97,7 @@ rbsSeeker -T CT -L 20 -t 129600000 -n 1 -H 3 -d 1 -p 0.05 -q 0.1 \
     * miCLIP_PeakHeight.bed
     * miCLIP_Truncation.bed
 
-* Identify potential m6A sites (DRACH motif) (supposed the miCLIP was perform with [Abcam antibody](https://www.nature.com/articles/nmeth.3453/figures/1))<BR>
+* Identify potential m6A sites (DRACH motif) (supposed the miCLIP was performed with [Abcam antibody](https://www.nature.com/articles/nmeth.3453/figures/1))<BR>
     * Substitutions at m6A site from `miCLIP_CT.bed`
         ```bash
         #substitutions at m6A site
