@@ -177,11 +177,8 @@ cat miCLIP.mut.bed miCLIP.CT.bed miCLIP.trunc.bed | awk 'BEGIN{FS="\t";OFS="\t";
       print arr[1], arr[2], arr[3], arr[4], readNumArr[key], arr[5];
     }
   }' | sort -k1,1 -k2,2n | bedtools intersect -a stdin \
-  -b miCLIP.mut.bed \
-  miCLIP.CT.bed \
-  miCLIP.trunc.bed \
-  -names mut CT trunc \
-  -s -wa -wb | \
+  -b miCLIP.mut.bed miCLIP.CT.bed miCLIP.trunc.bed \
+  -names mut CT trunc -s -wa -wb | \
   awk 'BEGIN{FS="\t";OFS="\t";}
   {
     key=$1"\t"$2"\t"$3"\t"$4"\t"$5"\t"$6;
