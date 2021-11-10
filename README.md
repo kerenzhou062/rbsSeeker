@@ -81,7 +81,7 @@ Here's the description of columns in the outputs:
 # example
 Here is an example that shows how to use `rbsSeeker` to identify N6-methyladenosine (`m6A`) sites at `single-base resolution` from `miCLIP` data.
 
-* Supposed the raw reads from miCLIP data were properly processed (e.g. adapter trimmed, PCR duplicates removed, bacode removed) and aligned to the propper genome (e.g. hg38). So then the reads alignment results (`miCLIP.sorted.bam`) were used for downstream analysis.
+* Supposed the raw reads from miCLIP data were properly processed (e.g. adapters trimmed, PCR duplicates removed, bacodes removed) and aligned to the propper genome (e.g. hg38). So then the reads alignment results (`miCLIP.sorted.bam`) were used for downstream analysis.
 * Run `rbsSeeker` on `miCLIP.sorted.bam`
 ```bash
 #rbsSeeker m6A sites calling, -t 129600000 is for human transcriptome
