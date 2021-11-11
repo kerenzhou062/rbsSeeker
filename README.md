@@ -4,13 +4,13 @@ Here, we describe the RNA-Binding Site Seeker (rbsSeeker), a new and unified sof
 rbsSeeker can identify highly convinced peaks and individual cross-linking sites, of which includes deletions, truncations and mutations.
 
 - [rbsSeeker](#rbsSeeker)
-- [Installation](#installation)
-- [Input](#input)
-- [Output](#output)
-- [Example](##xample)
+- [Installation](#Installation)
+- [Input](#Input)
+- [Output](#Output)
+- [Example](#Example)
 - [Basic usage](#Basic-usage)
-- [Acknowledgements](#acknowledgements)
-- [Contact](#contact)
+- [Acknowledgements](#Acknowledgements)
+- [Contact](#Contact)
 
 # Installation
 * It's very easy to install rbsSeeker on a linux server with following commands:
