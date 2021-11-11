@@ -1,5 +1,5 @@
 # rbsSeeker
-Here, we develop RNA-Binding Site Seeker (rbsSeeker), a new and unified software with Poisson and Hypergeometric modeling, to identify significant RBP-binding sites (`peaks` and `individual cross-linking sites`) from various kinds of CLIP-seq data, such as `HITS-CLIP`, `PAR-CLIP`, `iCLIP` and `eCLIP` data. rbsSeeker is also suitable for `miCLIP` data analysis.
+Here, we describe the RNA-Binding Site Seeker (rbsSeeker), a new and unified software with Poisson and Hypergeometric modeling, to identify significant RBP-binding sites (`peaks` and `individual cross-linking sites`) from various kinds of CLIP-seq data, such as `HITS-CLIP`, `PAR-CLIP`, `iCLIP` and `eCLIP` data. rbsSeeker is also suitable for `miCLIP` data analysis.
 
 rbsSeeker can identify highly convinced peaks and individual cross-linking sites, of which includes deletions, truncations and mutations.
 
