@@ -238,7 +238,7 @@ Usage: rbsSeeker [options] --fa <genome file> --fai <genome fai> --bam <mapped a
 ```
 
 # Acknowledgements
-Thanks a lot to everyone who contributed to the public code (e.g. BamTools) used by rbsSeeker.
+Thanks a lot to everyone who contributed to the public codes and libraries (e.g. BamTools) used by rbsSeeker.
 
 # Contact
 * Jian-Hua Yang <yangjh7@mail.sysu.edu.cn>, RNA Information Center, School of Life Sciences, Sun Yat-Sen University<BR>
