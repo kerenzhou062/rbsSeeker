@@ -82,13 +82,15 @@ Here's the description of columns in the outputs:
 Here is an example that shows how to use `rbsSeeker` to identify N6-methyladenosine (`m6A`) sites at `single-base resolution` from `miCLIP` data.
 
 * Supposed the raw reads from miCLIP data were properly processed (e.g. adapters trimmed, PCR duplicates removed, bacodes removed) and aligned to the propper genome (e.g. hg38). So then the reads alignment results (`miCLIP.sorted.bam`) were used for downstream analysis.
+
 * Run `rbsSeeker` on `miCLIP.sorted.bam`
-```bash
-# rbsSeeker m6A sites calling, -t 129600000 is for human transcriptome
-# this step is usually finished within 20 minutes, it depends on the sizes of your datasets
-rbsSeeker -T CT -L 20 -t 129600000 -n 1 -H 3 -d 1 -p 0.05 -q 0.1 \
-  -o ./output -P miCLIP --fa hg38.fa --fai hg38.fa.fai --bam miCLIP.sorted.bam > miCLIP.rbsSeeker.log
-```
+    ```bash
+    # rbsSeeker m6A sites calling, -t 129600000 is for human transcriptome
+    # this step is usually finished within 20 minutes, it depends on the sizes of your datasets
+    rbsSeeker -T CT -L 20 -t 129600000 -n 1 -H 3 -d 1 -p 0.05 -q 0.1 \
+      -o ./output -P miCLIP --fa hg38.fa --fai hg38.fa.fai --bam miCLIP.sorted.bam > miCLIP.rbsSeeker.log
+    ```
+
 * Output files from `rbsSeeker` results<BR>
     * miCLIP_CT.bed
     * miCLIP_End.bed
@@ -99,6 +101,7 @@ rbsSeeker -T CT -L 20 -t 129600000 -n 1 -H 3 -d 1 -p 0.05 -q 0.1 \
     * miCLIP_Truncation.bed
 
 * Identify potential m6A sites (DRACH motif) (supposed the miCLIP was performed with [Abcam antibody](https://www.nature.com/articles/nmeth.3453/figures/1))
+
     * Substitutions at m6A site from `miCLIP_CT.bed`
         ```bash
         #substitutions at m6A site
@@ -139,6 +142,7 @@ rbsSeeker -T CT -L 20 -t 129600000 -n 1 -H 3 -d 1 -p 0.05 -q 0.1 \
           }
         }' miCLIP_CT.bed > miCLIP.CT.bed
         ```
+
     * Truncations at +2 position of m6A site from `miCLIP_Truncation.bed`
         ```bash
         #truncations at +2 position of m6A site
@@ -162,41 +166,42 @@ rbsSeeker -T CT -L 20 -t 129600000 -n 1 -H 3 -d 1 -p 0.05 -q 0.1 \
           }
         }' miCLIP_Truncation.bed > miCLIP.trunc.bed
         ```
+
 * Pool identified sites together and get the final result `miCLIP.merge.bed` ([`bedtools`](https://bedtools.readthedocs.io/en/latest/content/bedtools-suite.html) is required)
-```bash
-cat miCLIP.mut.bed miCLIP.CT.bed miCLIP.trunc.bed | awk 'BEGIN{FS="\t";OFS="\t";}
-  {
-    split($4,arr,"|");
-    seq=arr[2];
-    key=$1"\t"$2"\t"$3"\t"seq"\t"$6;
-    readNumArr[key] += $5;
-  }
-  END{
-    for (key in readNumArr) {
-      split(key, arr,"\t");
-      print arr[1], arr[2], arr[3], arr[4], readNumArr[key], arr[5];
-    }
-  }' | sort -k1,1 -k2,2n | bedtools intersect -a stdin \
-  -b miCLIP.mut.bed miCLIP.CT.bed miCLIP.trunc.bed \
-  -names mut CT trunc -s -wa -wb | \
-  awk 'BEGIN{FS="\t";OFS="\t";}
-  {
-    key=$1"\t"$2"\t"$3"\t"$4"\t"$5"\t"$6;
-    if(key in hashArrA){
-      hashArrA[key] += 1;
-      hashArrB[key] = hashArrB[key]","$7;
-    }else{
-      hashArrA[key] = 1;
-      hashArrB[key] = $7;
-    }
-  }
-  END{
-    for (key in hashArrA){
-      print key, hashArrB[key], hashArrA[key];
-    }
-  }' | sort -k1,1 -k2,2n | \
-  awk 'BEGIN{FS="\t";OFS="\t";}{$4=$4"|"FNR;print}'> miCLIP.merge.bed
-```
+    ```bash
+    cat miCLIP.mut.bed miCLIP.CT.bed miCLIP.trunc.bed | awk 'BEGIN{FS="\t";OFS="\t";}
+      {
+        split($4,arr,"|");
+        seq=arr[2];
+        key=$1"\t"$2"\t"$3"\t"seq"\t"$6;
+        readNumArr[key] += $5;
+      }
+      END{
+        for (key in readNumArr) {
+          split(key, arr,"\t");
+          print arr[1], arr[2], arr[3], arr[4], readNumArr[key], arr[5];
+        }
+      }' | sort -k1,1 -k2,2n | bedtools intersect -a stdin \
+      -b miCLIP.mut.bed miCLIP.CT.bed miCLIP.trunc.bed \
+      -names mut CT trunc -s -wa -wb | \
+      awk 'BEGIN{FS="\t";OFS="\t";}
+      {
+        key=$1"\t"$2"\t"$3"\t"$4"\t"$5"\t"$6;
+        if(key in hashArrA){
+          hashArrA[key] += 1;
+          hashArrB[key] = hashArrB[key]","$7;
+        }else{
+          hashArrA[key] = 1;
+          hashArrB[key] = $7;
+        }
+      }
+      END{
+        for (key in hashArrA){
+          print key, hashArrB[key], hashArrA[key];
+        }
+      }' | sort -k1,1 -k2,2n | \
+      awk 'BEGIN{FS="\t";OFS="\t";}{$4=$4"|"FNR;print}'> miCLIP.merge.bed
+    ```
 
 # Basic Usage
 The available options of rbsSeeker are as follow:
