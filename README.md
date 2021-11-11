@@ -100,7 +100,7 @@ Here is an example that shows how to use `rbsSeeker` to identify N6-methyladenos
     * miCLIP_PeakHeight.bed
     * miCLIP_Truncation.bed
 
-* Identify potential m6A sites (DRACH motif) (supposed the miCLIP was performed with [Abcam antibody](https://www.nature.com/articles/nmeth.3453/figures/1))
+* Identify potential m6A sites (`DRACH motif`) (supposed the miCLIP was performed with [Abcam antibody](https://www.nature.com/articles/nmeth.3453/figures/1))
 
     * Substitutions at m6A site from `miCLIP_CT.bed`
         ```bash
