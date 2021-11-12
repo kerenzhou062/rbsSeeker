@@ -14,19 +14,19 @@ rbsSeeker can identify highly convinced peaks and individual cross-linking sites
 
 # Installation
 * It's very easy to install rbsSeeker on a linux server with following commands:
-```bash
-# suppose your path to install software is /username/software
-
-cd /username/software
-
-git clone https://github.com/kerenzhou062/rbsSeeker.git
-
-cd ./rbsSeeker
-
-sh install.sh
-
-export PATH=$PATH:/username/software/rbsSeeker/bin
-```
+    ```bash
+    # suppose your path to install software is /username/software
+    
+    cd /username/software
+    
+    git clone https://github.com/kerenzhou062/rbsSeeker.git
+    
+    cd ./rbsSeeker
+    
+    sh install.sh
+    
+    export PATH=$PATH:/username/software/rbsSeeker/bin
+    ```
 
 # Input
 * A genome sequences in fasta format is required by `--fa` argument, which chromsome's name must be the same with input `bam` file.
