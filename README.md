@@ -83,13 +83,13 @@ Here is an example that shows how to use `rbsSeeker` to identify N6-methyladenos
 
 * Supposed the raw reads from miCLIP data were properly processed (e.g. adapters trimmed, PCR duplicates removed, bacodes removed) and aligned to the propper genome (e.g. hg38). So then the reads alignment results (`miCLIP.sorted.bam`) were used for downstream analysis.
 
-    * Run `rbsSeeker` on `miCLIP.sorted.bam`
-        ```bash
-        # rbsSeeker m6A sites calling, -t 129600000 is for human transcriptome
-        # this step is usually finished within 20 minutes, it depends on the sizes of your datasets
-        rbsSeeker -T CT -L 20 -t 129600000 -n 1 -H 3 -d 1 -p 0.05 -q 0.1 \
-          -o ./output -P miCLIP --fa hg38.fa --fai hg38.fa.fai --bam miCLIP.sorted.bam > miCLIP.rbsSeeker.log
-        ```
+* Run `rbsSeeker` on `miCLIP.sorted.bam`
+    ```bash
+    # rbsSeeker m6A sites calling, -t 129600000 is for human transcriptome
+    # this step is usually finished within 20 minutes, it depends on the sizes of your datasets
+    rbsSeeker -T CT -L 20 -t 129600000 -n 1 -H 3 -d 1 -p 0.05 -q 0.1 \
+      -o ./output -P miCLIP --fa hg38.fa --fai hg38.fa.fai --bam miCLIP.sorted.bam > miCLIP.rbsSeeker.log
+    ```
 
 * Output files from `rbsSeeker` results<BR>
     * miCLIP_CT.bed
