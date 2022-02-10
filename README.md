@@ -219,7 +219,7 @@ Usage: rbsSeeker [options] --fa <genome file> --fai <genome fai> --bam <mapped a
   --bam <string>                  : alignments file with BAM format
   -o, --outdir <string>           : output dir
   -P, --prefix <string>           : prefix for output files
-  -s, --transcriptome <int>       : transcriptome size [e.g. in human, default=129600000]
+  -t, --transcriptome <int>       : transcriptome size [e.g. in human, default=129600000]
   -T, --cvs <string>              : conversion string [e.g. TC in PAR-CLIP, CT in miCLIP]
   -c, --min-peak-len <int>        : minimum length for a peak [default>=10]
   -i, --min-read-len <int>        : minimum read length [default>=10]
