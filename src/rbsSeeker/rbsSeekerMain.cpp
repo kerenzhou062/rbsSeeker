@@ -328,7 +328,7 @@ void usage(void)
 --bam <string>                 : alignments file with BAM format\n\
 -o/--outdir <string>           : output dir\n\
 -P/--prefix <string>           : prefix for output files\n\
--s/--transcriptome <int>       : transcriptome size[e.g. in human, default=129600000]\n\
+-t/--transcriptome <int>       : transcriptome size[e.g. in human, default=129600000]\n\
 -T/--cvs <string>              : conversion string[e.g. TC in PAR-CLIP, CT in miCLIP]\n\
 -c/--min-peak-len <int>        : minimum length for a peak [default>=10]\n\
 -i/--min-read-len <int>        : minimum read length [default>=10]\n\
