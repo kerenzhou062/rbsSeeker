@@ -54,7 +54,7 @@ double readBamToSignals(BamReader &reader, chromSignalMap &sigHash, int keepDup,
 
 double readBamToBedSignalMap(BamReader &reader, chromBedMap &bedHash, int keepDup, int maxLocusNum);
 
-double readBamToBed6Map(BamReader &reader, chromBed6Map &bed6Hash, int keepDup=0, int skipSplice=0);
+double readBamToBed6Map(BamReader &reader, chromBed6Map &bed6Hash, int keepDup=0, int maxInsertLen=1000000, int skipSplice=0,  int normalization=0, int ccaTail=0);
 
 double readBamToBedMap(BamReader &reader, chromBedMap &bedHash, map<string, int> &readLocus, int keepDup, int maxLocusNum);
 
@@ -105,10 +105,13 @@ CBed12 *bamToBed12(const BamAlignment &bam, const string &chrom, int skipDeletio
 
 double readSEBamToBed12Map(BamReader &reader, chromBed12Map &bed12Hash, int skipDeletion=0, int skipSplice=0, int collapser=0, int skipBigClip=0, int skipSoft=0);
 
-double readPEBamToBed6MapNew(BamReader &reader, chromBed6Map &bed6Hash, int maxInsertLen=1000000, int skipSplice=0);
+double readPEBamToBed6MapNew(BamReader &reader, chromBed6Map &bed6Hash, int maxInsertLen=1000000, int skipSplice=0, int normalization=0, int ccaTail=0);
 
 double readPEBamToBed12Map(BamReader &reader, chromBed12Map &bed12Hash, int skipDeletion=0, int skipSplice=0, int collapser=0, int skipBigClip=0, int skipSoft=0);
 
 int getAllClipLen(string &cigarData, int *leftClipLen, int *rightClipLen);
+
+double readBamToVariationMap(chromSeqMap &chromSeqHash, BamReader &reader, chromVarMap &varHash,
+                             int keepDup, int maxLocusNum, int skipSplice, int normalization, int minReadLen);
 
 #endif /* End BAM_HEAD_H */

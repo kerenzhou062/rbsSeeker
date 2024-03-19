@@ -11,6 +11,7 @@ struct CBedInfo
         char strand; // strand
         int mateFlag; // mate flag
         int locusNum; // locus number from NH flag in STAR program
+        int tailTag; // cca/aca tail reads
 };
 
 typedef struct CBedInfo CBed;
@@ -26,6 +27,7 @@ struct CBed6Info
         char strand; // strand
         int mateFlag; // mate flag
         int locusNum; // locus number from NH flag in STAR program
+        int tailTag; // cca/aca tail reads
 };
 
 typedef struct CBed6Info CBed6;

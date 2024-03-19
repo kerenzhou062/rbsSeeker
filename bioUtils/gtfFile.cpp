@@ -4,6 +4,7 @@
 #include<ctype.h>
 #include<assert.h>
 #include<math.h>
+#include<stdint.h>
 #include <map>
 #include <algorithm>
 #include <ios>
@@ -245,7 +246,7 @@ CBed12 *mergeGtfToBed12(gtfVector &gtfList, const char *type)
   bed->chromEnd = maxEnd;
   if (sameString(type, "gene")) bed->name = strClone(gid);
   if (sameString(type, "transcript")) bed->name = strClone(tid);
-  bed->score = 900;
+  bed->score = 1000;
   bed->strand = strand;
   bed->itemRgb = 0;
   int blockCount = 1;
@@ -260,7 +261,7 @@ CBed12 *mergeGtfToBed12(gtfVector &gtfList, const char *type)
     }
     if (geneMatrix[i] == 2)
     {
-      thickEnd = i+1;
+      thickEnd = i + 1;
       if (firstTag)
       {
         firstTag = 0;
@@ -268,8 +269,16 @@ CBed12 *mergeGtfToBed12(gtfVector &gtfList, const char *type)
       }
     }
   }
+
   bed->thickStart = bed->chromStart + thickStart;
   bed->thickEnd = bed->chromStart + thickEnd;
+
+  if (bed->thickStart == bed->thickEnd)
+  {
+    bed->thickStart = bed->chromEnd;
+    bed->thickEnd = bed->chromEnd;
+  }
+
   bed->blockCount = blockCount;
   bed->blockSizes = (int *)safeMalloc(sizeof(int) * blockCount);
   bed->chromStarts = (int *)safeMalloc(sizeof(int) * blockCount);

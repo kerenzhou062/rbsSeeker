@@ -4,6 +4,7 @@
 #include<ctype.h>
 #include<assert.h>
 #include<math.h>
+#include<stdint.h>
 #include <map>
 #include <algorithm>
 #include <ios>
@@ -58,6 +59,28 @@ long readFai(FILE *fp, faidxMap &faiHash)
   return genomeSize;
 }
 
+uint16_t encodeChrom(faidxMap &faidxHash, chromCodeMap &chromCodeHash, chromCodeVector &chromCodeList)
+{
+  uint16_t i = 0;
+  uint16_t maxVal = 65500;
+  faidxMap::iterator it;
+  for (it = faidxHash.begin(); it != faidxHash.end(); ++it)
+  {
+    string chrom = it->first;
+    chromCodeHash[chrom] = i;
+    chromCodeList.push_back(chrom);
+    //fprintf(stderr, "hash: %s\t%d\n", chrom.c_str(), i);
+    //fprintf(stderr, "vector: %s\t%d\n", chromCodeList[i].c_str(), i);
+    if (i>maxVal)
+    {
+      fprintf(stderr, "Error: The number (%d) of chromosome is large %d\n", faidxHash.size(), maxVal);
+      exit(1);
+    }
+    i++;
+  }
+  return i;
+}
+
 void freeFaiList(faidxMap &fai)
 /*free fai list */
 {
@@ -93,4 +116,28 @@ char *faidxFetchSeq(FILE *gfp, const faidx *fai, int start, int end, char strand
     reverseComp(seq);
   }
   return seq;
+}
+
+void fetchAllSeq(FILE *gfp, faidxMap &faidxHash, chromSeqMap &chromSeqHash)
+{
+  faidxMap::iterator it;
+  for (it = faidxHash.begin(); it != faidxHash.end(); ++it)
+  {
+    string chrom = it->first;
+    faidx *fai   = it->second;
+    int chromLen   = fai->len;
+    char* chromSeq = faidxFetchSeq(gfp, fai, 0, chromLen, '+');
+    chromSeqHash[chrom] = chromSeq;
+  }
+}
+
+void safeFreeChromSeq(chromSeqMap &chromSeqHash)
+{
+  chromSeqMap::iterator it;
+  for (it = chromSeqHash.begin(); it != chromSeqHash.end(); ++it)
+  {
+    char* chromSeq = it->second;
+    safeFree(chromSeq);
+  }
+  chromSeqHash.clear();
 }

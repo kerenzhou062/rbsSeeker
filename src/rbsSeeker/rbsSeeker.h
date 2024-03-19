@@ -1,5 +1,10 @@
-/* bed head file */
-
+/********************************************************************
+ * rbsSeeker: identify RBP binding sites at single-base resolution
+ * Author: jianhua yang
+ * Email: yangjh7@mail.sysu.edu.cn
+ * Copyright: School of Life Sciences, Sun Yat-sen University
+ * $ 2019/12/09
+ ********************************************************************/
 #ifndef rbsSeeker_HEAD_H
 #define rbsSeeker_HEAD_H
 
@@ -8,97 +13,63 @@
 #endif
 
 #define MINVAL 1E-300
-
+#define MIN_RATIO 0.00001
 #define EXTEND_LEN 10
+#define SEEKER_TYPE 7
+#define CLIP_TYPE 6
+#define rpmFactor 1000000
+#define mergePeakDist -50
+#define mergeVarDist  10
+#define pseudoCount 1
+#define baseNum 5
+#define nuclNum 15
+#define peakExtLen 20
+#define mutDist 3
+#define peakExtWindowLen 500
+#define minCtrlNum 10
 
-extern double transMatrix[ENCODENUM][ENCODENUM];
-extern double transMatrixNum[ENCODENUM][ENCODENUM];
+typedef std::pair<uint32_t, uint32_t> exonPair;
+typedef vector<exonPair> exonVector;
 
-struct peakInfo {
-  char   *chrom;
-  int    start;
-  int    end;
-  char   strand;
-  double readNum;
-  double totalHeight;
-  double totalConversionNum;
-  double totalConversionHeight;
-  double totalMutationNum;
-  double totalMutationHeight;
-  double totalDeletionNum;
-  double totalDeletionHeight;
-  double totalTruncationNum;
-  double totalTruncationHeight;
-  double totalInsertionNum;
-  double totalInsertionHeight;
-  double totalEndNum;
-  double totalEndHeight;
-  double t2cRatio;
-  double mutRatio;
-  double truRatio;
-  double delRatio;
-  double insRatio;
-  double endRatio;
-  double pval;
-  double qval;
-  double mfold;
-  double maxHeight;
-  double heightRpm;
-  double ratio;
-  int readLen; // sum of all read length
-  int maxHeightPos;
-  char *seq;
-  double **profile;
-};
+typedef vector<int> nuclVector;
 
-typedef struct peakInfo Cluster;
+typedef map<string, double*> varProfileMap;
 
-typedef vector<Cluster *> clusterVector;
-
-struct genomePeakInfo {
+struct rbsSumTypeInfo {
   double totalReadNum;
   double totalHeight;
-  double totalConversionNum;
-  double totalConversionHeight;
-  double totalMutationNum;
-  double totalMutationHeight;
-  double totalDeletionNum;
-  double totalDeletionHeight;
-  double totalTruncationNum;
-  double totalTruncationHeight;
-  double totalInsertionNum;
-  double totalInsertionHeight;
-  double totalEndNum;
-  double totalEndHeight;
-  double t2cRatio;
-  double mutRatio;
-  double truRatio;
-  double delRatio;
-  double insRatio;
-  double endRatio;
+  double varRatio;
   long int totalLen;
 };
 
-typedef struct genomePeakInfo genomeCluster;
+typedef struct rbsSumTypeInfo rbsSumType;
 
-struct clusterSiteInfo {
-  char   *chrom;
-  int    start;
-  int    end;
-  char   strand;
-  double heightRpm;
-  double readNum;
-  double height;
-  double ratio;
-  double mfold;
-  double pval;
-  double qval;
-  char *type;
+typedef map<string, rbsSumType*> rbsSumTypeMap;
+
+struct rbsSiteInfo {
+  //char *chrom;
+  uint16_t chromCode;
+  uint32_t start;
+  uint32_t end;
+  char     strand;
+  double   tVarNum;
+  double   tHeight;
+  double   cVarNum;
+  double   cHeight;
+  double   mfold;
+  double   ufold;
+  double   dfold;
+  double   pval;
+  double   qval;
 };
 
-typedef struct clusterSiteInfo RBSite;
+typedef struct rbsSiteInfo RBSite;
 
 typedef vector<RBSite *> siteVector;
+
+typedef map<string, siteVector> siteTypeMap;
+
+typedef vector<double> windowVector;
 
 typedef struct parameterInfo
 {
@@ -110,12 +81,20 @@ typedef struct parameterInfo
   double pval;
   double qval;
   double mfold;
+  double pfold;
   double minRatio;
   double maxRatio;
+  double totalTreatNum;
+  double totalCtrlNum;
+  double treatVsCtrlRatio;
+  double dropRatio;
+  int    clipType;
   int    maxLocusNum;
   int    maxReadDist;
   int    minClusterLen;
+  int    maxClusterLen;
   int    verbose;
+  int    norm;
   int    PCR;
   int    rmSeMutation;
   int    peakModel;
@@ -124,75 +103,78 @@ typedef struct parameterInfo
   int    bam;
   int    fullLength;
   int    barcodeLen;
+  int    skipSplice;
+  int    windowLen;
+  int    rnafold;
+  uint8_t cvsCode;
   long   genomeSize;
   long   transcriptomeSize;
   char  *cvs;
   char  *primerSeq;
+  char  *motifSeq;
 } parameterInfo;
 
-struct bedName
-{
-  struct bedName *next;
-  char *readName;
-};
+void seekRbsSites(FILE *gfp, FILE *faifp, char *outdir, struct parameterInfo *paraInfo, char *treatFile, char *controlFile);
 
-void seekRbsSites(FILE *gfp, FILE *faifp, char *outdir, struct parameterInfo *paraInfo, char *bamFile);
+void callPeakAndMutation(struct parameterInfo *paraInfo, chromVarMap &treatVarHash,
+                         chromVarMap &controlVarHash, FILE *gfp, faidxMap &faiHash, char *outdir);
 
-double normalizedReads(struct parameterInfo *paraInfo, chromSamMap &samHash);
+void initiateRbsSumTypeMap(rbsSumTypeMap &rbsSumHash, int clipType);
 
-void callPeaks(struct parameterInfo *paraInfo, chromSamMap &bedHash,
-               clusterVector &contigVector, FILE *gfp, faidxMap &faiHash);
+void freeRbsSumTypeMap(rbsSumTypeMap &rbsSumHash);
 
-int outputTypeSites(struct parameterInfo *paraInfo, char *outdir, FILE *gfp, faidxMap &faiHash, siteVector &siteArray);
+void allocVarProfileMap(varProfileMap &varProHash, int span, int clipType);
 
-int outputPeakSites(struct parameterInfo *paraInfo, char *outdir, FILE *gfp, faidxMap &faiHash, clusterVector &contigVector);
+void freeVarProfileMap(varProfileMap &varProHash);
 
-void outputSiteInfo(FILE *gfp, faidxMap &faiHash, char *outdir, struct parameterInfo *paraInfo, double totalReadNum, clusterVector &contigVector);
+double varToProfile(struct parameterInfo *paraInfo, varVector &varList, varProfileMap &varProHash,
+                    char *chromSeq, int chromLen, char strand);
 
-double getGenomeClusterInfo(struct parameterInfo *paraInfo, clusterVector &contigVector, genomeCluster *gCluster);
+int getVariation(struct parameterInfo *paraInfo, varProfileMap &varProHash, Variation *var, int clipType, char strand);
 
-double **getProfile(struct parameterInfo *paraInfo, samVector &samList,
-                    int start, int end, char strand, Cluster *pCluster);
+void identifyRbsSites(struct parameterInfo *paraInfo, varProfileMap &treatVarProHash, varProfileMap &ctrlVarProHash,
+                      siteTypeMap &allSiteTypeHash, char *chrom, int chromLen, char strand,
+                      rbsSumTypeMap &treatRbsSumHash, rbsSumTypeMap &ctrlRbsSumHash);
 
-void getAllMutations(struct parameterInfo *paraInfo, char strand, int start, int end,
-                     samVector &samList, clusterVector &contigVector, FILE *gfp, faidx *fai);
+int identifyPeaks(struct parameterInfo *paraInfo, double *treatHgt, double *ctrlHgt,
+                  uint16_t chromCode, int chromLen, int peakStart, int peakEnd, char strand, 
+                  double maxCov, int maxPos, double ctrlRatio, siteVector &siteList);
 
-int getPeakInfo(struct parameterInfo *paraInfo, char strand, samVector &samList,
-                clusterVector &contigVector, FILE *gfp, faidx *fai);
+void calculatePval(struct parameterInfo *paraInfo, siteTypeMap &siteTypeHash,
+                   rbsSumTypeMap &treatRbsSumHash, rbsSumTypeMap &ctrlRbsSumHash);
 
-double **alloc2array(int nrows, int ncolumns);
+void calculateGenomeVariation(struct parameterInfo *paraInfo, rbsSumTypeMap &treatRbsSumHash);
 
-void free2array(double **array, int nrows);
+void outputAllTypeRbsSite(struct parameterInfo *paraInfo, siteTypeMap &treatSiteTypeHash,
+                          FILE *gfp, faidxMap &faiHash, char *outdir);
 
-int encodeAlignment(char ch, char strand);
+int outputPeakTypeSites(struct parameterInfo * paraInfo, FILE * gfp, faidxMap & faiHash,
+                        siteVector & siteArray, char *outdir, char *siteType);
 
-void getCIMS(double **readProfile, char *seq, char *cigar, double readNum, char strand);
+void mergeAllPeakSite(struct parameterInfo * paraInfo, siteVector & siteArray, siteVector & mergeSiteArray, char strand);
 
-char decodeAlignment(int i);
+int outputOnePeakSite(struct parameterInfo * paraInfo, FILE * outfp, FILE * gfp, faidxMap & faiHash,
+                      RBSite * rbs, int siteIdx, char *siteType);
 
-void identifyClusterInfo(char *clusterSeq, char strand, int start, int end, double **profile, Cluster *pCluster, struct parameterInfo *paraInfo);
+void mergeAllVariationSite(struct parameterInfo * paraInfo, siteVector & siteArray, siteVector & mergeSiteArray, char strand);
 
-int identifyClusterSites(struct parameterInfo * paraInfo, FILE * gfp,
-                         faidxMap & faiHash, double coverageRead,
-                         Cluster * pCluster, genomeCluster * gCluster,
-                         siteVector & conversionArray, siteVector & mutationArray,
-                         siteVector & truncationArray, siteVector & peakArray,
-                         siteVector & endArray, siteVector & delArray, siteVector & insArray);
+int outputOneVarSite(struct parameterInfo * paraInfo, FILE * outfp, FILE * gfp, faidxMap & faiHash,
+                     RBSite *rbs, int siteIdx, char *siteType);
 
-int outputPeakHeightTypeSites(struct parameterInfo *paraInfo, char *outdir, FILE *gfp, faidxMap &faiHash, siteVector &siteArray);
+void copyRBSiteNoChrom(RBSite * tRbs, RBSite * oRbs);
 
-int outputStrandRbsSite(struct parameterInfo *paraInfo, FILE *outfp, 
-  FILE *gfp, faidxMap &faiHash, siteVector &siteArray, int siteIdx, char strand);
+void copyRBSite(RBSite * tRbs, RBSite * oRbs);
 
-int outputRbsSite(struct parameterInfo *paraInfo, FILE *outfp, FILE *gfp, faidxMap &faiHash, RBSite *rbs, int siteIdx);
+int outputVariationTypeSites(struct parameterInfo * paraInfo, FILE * gfp, faidxMap & faiHash,
+                             siteVector & siteArray, char *outdir, char *siteType);
 
-int searchMotif(char *seq);
+void freeSiteTypeMap(siteTypeMap &siteTypeHash) /*free site map */;
 
-void freeCluster(Cluster *clust);
+RBSite *allocRBSite(uint16_t chromCode, int start, int end, char strand);
 
-void freeClusterVector(clusterVector &cList);
+char revComChar(char ch, char strand);
 
-void copyRBSite(RBSite *tRbs, RBSite *oRbs);
+int searchMotif(char *motif, char *seq);
 
 void freeSite(RBSite *rbs);
 
@@ -202,20 +184,11 @@ void freeParameters(parameterInfo *paraInfo);
 
 void getSiteBhFdr(siteVector &BHhash);
 
-void getClusterBhFdr(clusterVector &BHhash);
-
 int cmpChromLocus(const RBSite *x, const RBSite *y);
 
-double removeMisprimingReads(struct parameterInfo* paraInfo,
-                             FILE* genomefp,
-                             faidxMap &faiHash,
-                             chromSamMap &samHash,
-                             chromSamMap &newSamHash);
+int encodeNucleotide(char base);
 
-void initTransMatrix(void);
-
-void outputTransMatrix(struct parameterInfo *paraInfo, char *outdir);
-
-void removeSeMutations(double **profile, double **readProfile, CSam *sam, int start, char strand);
+void decodeNucleotide(char base, nuclVector &nuclList);
 
 #endif /* End rbsSeeker_HEAD_H */
+

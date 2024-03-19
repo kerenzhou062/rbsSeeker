@@ -4,6 +4,7 @@
 #include<ctype.h>
 #include<assert.h>
 #include<math.h>
+#include<stdint.h>
 #include "BamReader.h"
 #include "BamAux.h"
 using namespace BamTools;
@@ -23,6 +24,7 @@ using namespace std;
 #include "bioUtils.h"
 #include "faiFile.h"
 #include "bedFile.h"
+#include "varFile.h"
 #include "samFile.h"
 
 template<typename T>
@@ -551,12 +553,13 @@ double readPEBamToBed6MapNew(BamReader &reader, chromBed6Map &bed6Hash, int maxI
   return totalNum;
 }*/
 
-double readPEBamToBed6MapNew(BamReader &reader, chromBed6Map &bed6Hash, int maxInsertLen, int skipSplice)
+double readPEBamToBed6MapNew(BamReader &reader, chromBed6Map &bed6Hash, int maxInsertLen, int skipSplice,  int normalization, int ccaTail)
 // must at same chromosome
 {
   int i            = 0;
   double totalNum  = 0;
   int insertSize   = 0;
+  int warnning     = 1;
   // get header & reference information
   reader.Rewind();
   string header  = reader.GetHeaderText();
@@ -579,6 +582,16 @@ double readPEBamToBed6MapNew(BamReader &reader, chromBed6Map &bed6Hash, int maxI
         }
         else
         {
+          uint8_t nhVal = 1;
+          if (!bam1.GetTag("NH", nhVal)) {
+            if (warnning)
+              fprintf(stderr, "The requested tag NH is not exist in bam file\n");
+            //exit(1);
+            warnning = 0;
+            nhVal    = 1;
+          }
+          if (normalization == 0) nhVal = 1;
+          int ccaTag = 0;
           if (skipSplice == 2)
           {
             string cigar1 = BuildCigarString(bam1.CigarData);
@@ -586,13 +599,36 @@ double readPEBamToBed6MapNew(BamReader &reader, chromBed6Map &bed6Hash, int maxI
             string cigar2 = BuildCigarString(bam2.CigarData);
             if (cigar2.find('N') != std::string::npos) continue; // discard the reads with N tag (intron)
           }
-          string chrom1 = refs.at(bam1.RefID).RefName;
-          string chrom2 = refs.at(bam2.RefID).RefName;
-          CBed6 *bed1 = bamToBed6(bam1, chrom1);
-          CBed6 *bed2 = bamToBed6(bam2, chrom2);
+          if (ccaTail == 1)
+          {
+            string plusStr  = "CCA";
+            string minusStr = "TGG";
+            string clipStr  = "3S";
+            if (bam1.IsReverseStrand() == true) {
+              string readSeq  = bam2.QueryBases;
+              string cigar = BuildCigarString(bam2.CigarData);
+              if (readSeq.rfind(minusStr, 0) == 0) ccaTag += 1;
+              if (ccaTag == 1 && cigar.rfind(clipStr, 0) == 0) ccaTag += 2;
+            }
+            else
+            {
+              string readSeq  = bam2.QueryBases;
+              string cigar    = BuildCigarString(bam2.CigarData);
+              ssize_t idx = readSeq.size() - 3;
+              ssize_t cidx = cigar.size() - 2;
+              if (readSeq.rfind(plusStr, idx) == idx) ccaTag += 1;
+              if (ccaTag == 1 && cigar.rfind(clipStr, cidx) == cidx) ccaTag += 2;
+            }
+          }
+          string chrom1  = refs.at(bam1.RefID).RefName;
+          string chrom2  = refs.at(bam2.RefID).RefName;
+          CBed6 *bed1    = bamToBed6(bam1, chrom1);
+          CBed6 *bed2    = bamToBed6(bam2, chrom2);
           CBed6 *bed6Ptr = mergeTwoBed6(bed1, bed2);
           freeBed6Item(bed1);
           freeBed6Item(bed2);
+          bed6Ptr->tailTag = ccaTag;
+          bed6Ptr->score = bed6Ptr->score / (double)nhVal;
           if (abs(bed6Ptr->chromEnd - bed6Ptr->chromStart) > maxInsertLen)
           {
             freeBed6Item(bed6Ptr);
@@ -602,7 +638,7 @@ double readPEBamToBed6MapNew(BamReader &reader, chromBed6Map &bed6Hash, int maxI
             bed6Hash[chrom1].push_back(bed6Ptr);
             totalNum++;
           }
-        }
+        }//bam2
       }
     }
   }
@@ -799,7 +835,7 @@ double readBamToBedSignalMap(BamReader &reader, chromBedMap &bedHash, int keepDu
   return totalNum;
 }
 
-double readBamToBed6Map(BamReader &reader, chromBed6Map &bed6Hash, int keepDup, int skipSplice)
+double readBamToBed6Map(BamReader &reader, chromBed6Map &bed6Hash, int keepDup, int maxInsertLen, int skipSplice, int normalization, int tailTag)
 {
   int i           = 0;
   char delims[]   = "-";
@@ -807,6 +843,7 @@ double readBamToBed6Map(BamReader &reader, chromBed6Map &bed6Hash, int keepDup, 
   char **infos    = NULL;
   int infoNum     = 0;
   double totalNum = 0;
+  int warnning    = 1;
   CBed6 *bedPtr    = NULL;
   map<string, int> dupMap;
   // get header & reference information
@@ -819,12 +856,65 @@ double readBamToBed6Map(BamReader &reader, chromBed6Map &bed6Hash, int keepDup, 
   {
     if (bam.IsMapped() == true)
     {
+      uint8_t nhVal = 1;
+      if (!bam.GetTag("NH", nhVal)) {
+        if (warnning)
+          fprintf(stderr, "The requested tag NH is not exist in bam file\n");
+        //exit(1);
+        warnning = 0;
+        nhVal    = 1;
+      }
+      if (normalization == 0) nhVal = 1;
+
+      int ccaTag = 0;
+      int acaTag = 0;
+      int chromStart = bam.Position;
+      int chromEnd   = bam.GetEndPosition(false, false);
+      if (abs(chromEnd - chromStart) > maxInsertLen) continue; // discard read spaning huge region
       if (skipSplice == 2)
       {
         string cigar = BuildCigarString(bam.CigarData);
         if (cigar.find('N') != std::string::npos) continue; // discard the reads with N tag (intron)
       }
-      string readName    = bam.Name;
+      if (tailTag == 1)
+      {
+        string plusStr  = "CCA";
+        string minusStr = "TGG";
+        string clipStr  = "3S";
+        if (bam.IsReverseStrand() == true) {
+          string readSeq  = bam.QueryBases;
+          string cigar = BuildCigarString(bam.CigarData);
+          if (readSeq.rfind(minusStr, 0) == 0) ccaTag += 1;
+          if (ccaTag == 1 && cigar.rfind(clipStr, 0) == 0) ccaTag += 2;
+        }
+        else
+        {
+          string readSeq = bam.QueryBases;
+          string cigar = BuildCigarString(bam.CigarData);
+          ssize_t idx  = readSeq.size() - 3;
+          ssize_t cidx = cigar.size() - 2;
+          if (readSeq.rfind(plusStr, idx) == idx) ccaTag += 1;
+          if (ccaTag == 1 && cigar.rfind(clipStr, cidx) == cidx) ccaTag += 2;
+        }
+      }
+      if (tailTag == 2)
+      {
+        string plusStr  = "ACA";
+        string minusStr = "TGT";
+        string plusATA  = "ATA";
+        string minusATA = "TAT";
+        if (bam.IsReverseStrand() == true) {
+          string readSeq  = bam.QueryBases;
+          if (readSeq.rfind(minusStr, 3) == 3 || readSeq.rfind(minusATA, 3) == 3) acaTag += 5;
+        }
+        else
+        {
+          string readSeq = bam.QueryBases;
+          ssize_t idx  = readSeq.size() - 6;
+          if (readSeq.rfind(plusStr, idx) == idx || readSeq.rfind(plusATA, idx) == idx) acaTag += 5;
+        }
+      }
+      string readName = bam.Name;
       string chrom  = refs.at(bam.RefID).RefName;
       char strand = '+';
       if (bam.IsReverseStrand() == true) strand = '-';
@@ -834,30 +924,25 @@ double readBamToBed6Map(BamReader &reader, chromBed6Map &bed6Hash, int keepDup, 
         if (bam.AlignmentFlag & 0x40) mateFlag = 1;
         if (bam.AlignmentFlag & 0x80) mateFlag = 2;
       }
-      uint8_t nhVal = 1;
-      if (!bam.GetTag("NH", nhVal)) {
-        //if (warnning)
-        //  fprintf(stderr, "The requested tag NH is not exist in bam file\n");
-        //exit(1);
-        //warnning = 0;
-        nhVal = 1;
-      }
       bedPtr             = (CBed6 *)safeMalloc(sizeof(CBed6));
       bedPtr->chrom      = strClone(const_cast<char *>(chrom.c_str()));
-      bedPtr->chromStart = bam.Position;
-      bedPtr->chromEnd   = bam.GetEndPosition(false, false);
+      bedPtr->chromStart = chromStart;
+      bedPtr->chromEnd   = chromEnd;
       bedPtr->strand     = strand;
       bedPtr->name       = strClone(const_cast<char*>(readName.c_str()));
       bedPtr->mateFlag   = mateFlag;
       bedPtr->locusNum   = nhVal;
       //if (bam.IsReverseStrand() == true) bedPtr->strand = '-';
       bedPtr->score      = 1;
+      bedPtr->tailTag    = ccaTag;
+      if (tailTag == 2)  bedPtr->tailTag = acaTag;
       infos = splitString(const_cast<char *>(readName.c_str()), delims, &infoNum);
       if (infoNum == 2 && keepDup)
       {
         if (isdigit(infos[1][0]))
           bedPtr->score = atof(infos[1]);
       }
+      bedPtr->score = bedPtr->score/(double)nhVal;
       totalNum += bedPtr->score;
       freeWords(infos, infoNum); // free memory
       bedPtr->next = NULL;
@@ -1269,6 +1354,83 @@ double readPEBamToBedMap(BamReader &reader, chromBedMap &bedHash, map<string, in
   return totalNum;
 }
 
+double readBamToVariationMap(chromSeqMap &chromSeqHash, BamReader &reader, chromVarMap &varHash,
+                             int keepDup, int maxLocusNum, int skipSplice, int normalization, int minReadLen)
+{
+  int i           = 0;
+  char delims[]   = "-";
+  int fieldNum    = 0;
+  char **infos    = NULL;
+  int infoNum     = 0;
+  double totalNum = 0;
+  int warnning    = 1;
+  Variation *varPtr    = NULL;
+  // get header & reference information
+  reader.Rewind();
+  string header = reader.GetHeaderText();
+  RefVector refs = reader.GetReferenceData();
+  // rip through the BAM file and convert each mapped entry to BED
+  BamAlignment bam;
+  while (reader.GetNextAlignment(bam))
+  {
+    if (bam.IsMapped() == true)
+    {
+      uint8_t nhVal = 1;
+      if (!bam.GetTag("NH", nhVal)) {
+        if (warnning)
+          fprintf(stderr, "The requested tag NH is not exist in bam file\n");
+        //exit(1);
+        warnning = 0;
+        nhVal    = 1;
+      }
+      if (nhVal > maxLocusNum) continue;
+      if (normalization == 0) nhVal = 1;
+      string chrom    = refs.at(bam.RefID).RefName;
+      char *chromStr  = const_cast<char *>(chrom.c_str());
+      if (chromSeqHash.find(chrom) == chromSeqHash.end())
+      {
+        //fprintf(stderr, "The chromosome %s is not in the genome file, skip the read\n", chromStr);
+        continue;
+      }
+      int chromStart = bam.Position;
+      int chromEnd   = bam.GetEndPosition(false, false);
+      if (chromEnd - chromStart < minReadLen) continue;
+      string cigar    = BuildCigarString(bam.CigarData);
+      char *cigarStr  = const_cast<char*>(cigar.c_str());
+      char *Npos      = strchr(cigarStr, 'N'); // discard the reads with N tag (intron)
+      if (Npos != NULL && skipSplice) continue;
+
+      varPtr             = (Variation *)safeMalloc(sizeof(Variation));
+      varPtr->chrom      = strClone(chromStr);
+      varPtr->chromStart = chromStart;
+      varPtr->chromEnd   = chromEnd;
+      varPtr->strand     = '+';
+      if (bam.IsReverseStrand() == true) varPtr->strand = '-';
+
+      string readName    = bam.Name;
+      varPtr->readNum    = 1.0 / (double)nhVal;
+      if (readName.find('-') != std::string::npos) {
+        infos = splitString(const_cast<char *>(readName.c_str()), delims, &infoNum);
+        if (infoNum == 2 && keepDup)
+        {
+          if (isdigit(infos[1][0]))
+            varPtr->readNum = atof(infos[1]) / (double)nhVal;
+        }
+        freeWords(infos, infoNum); // free memory
+      }
+      totalNum += varPtr->readNum;
+      varPtr->next = NULL;
+      char *chromSeq = chromSeqHash[chrom];
+      string readSeq = bam.QueryBases;
+      char *seq = const_cast<char*>(readSeq.c_str());
+      getOneVariation(chromStr, chromSeq, seq, cigarStr, varPtr);
+      varHash[chrom].push_back(varPtr);
+      i++;
+    }// if mapped
+  }// while read
+  return totalNum;
+}
+
 double readBamToSamMapNew(BamReader &reader, chromSamMap &samHash, int keepDup, int maxLocusNum, int skipSplice)
 {
   int i           = 0;
@@ -1317,11 +1479,15 @@ double readBamToSamMapNew(BamReader &reader, chromSamMap &samHash, int keepDup, 
       string readSeq  = bam.QueryBases;
       samPtr->readSeq = strClone(const_cast<char*>(readSeq.c_str()));
       string mdz;
-      if (!bam.GetTag("MD", mdz)) {
-        fprintf(stderr, "The requested tag MD is not exist in bam file\n");
-        exit(1);
+      samPtr->mdz = NULL;
+      if (bam.GetTag("MD", mdz)) {
+        samPtr->mdz = strClone(const_cast<char*>(mdz.c_str()));
       }
-      samPtr->mdz = strClone(const_cast<char*>(mdz.c_str()));
+      else
+      {
+        //fprintf(stderr, "The requested tag MD is not exist in bam file\n");
+        //exit(1);
+      }
       samPtr->readNum    = 1 / (double)nhVal;
       infos = splitString(const_cast<char *>(readName.c_str()), delims, &infoNum);
       if (infoNum == 2 && keepDup)
@@ -1423,11 +1589,10 @@ double readBamToSamMap(BamReader &reader, chromSamMap &samHash, map<string, int>
       string readSeq  = bam.QueryBases;
       samPtr->readSeq = strClone(const_cast<char*>(readSeq.c_str()));
       string mdz;
-      if (!bam.GetTag("MD", mdz)) {
-        fprintf(stderr, "The requested tag MD is not exist in bam file\n");
-        exit(1);
+      samPtr->mdz = NULL;
+      if (bam.GetTag("MD", mdz)) {
+        samPtr->mdz = strClone(const_cast<char*>(mdz.c_str()));
       }
-      samPtr->mdz = strClone(const_cast<char*>(mdz.c_str()));
       samPtr->readNum    = 1 / (double)lociNum;
       infos = splitString(const_cast<char *>(readName.c_str()), delims, &infoNum);
       if (infoNum == 2 && keepDup)
@@ -1595,7 +1760,7 @@ void freeSamItem(CSam *sam)
   safeFree(sam->chrom);
   safeFree(sam->readName);
   safeFree(sam->readSeq);
-  safeFree(sam->mdz);
+  if (sam->mdz != NULL) safeFree(sam->mdz);
   safeFree(sam->cigar);
   safeFree(sam);
 }
@@ -1612,7 +1777,8 @@ void copySam(CSam *tSam, CSam *oSam)
   tSam->misMatches = oSam->misMatches;
   tSam->readSeq    = strClone(oSam->readSeq);
   tSam->readName   = strClone(oSam->readName);
-  tSam->mdz        = strClone(oSam->mdz);
+  tSam->mdz        = NULL;
+  if (oSam->mdz != NULL) tSam->mdz = strClone(oSam->mdz);
   tSam->cigar      = strClone(oSam->cigar);
 }
 

@@ -4,6 +4,7 @@
 #include<ctype.h>
 #include<assert.h>
 #include<math.h>
+#include<stdint.h>
 #include <map>
 #include <algorithm>
 #include <ios>
