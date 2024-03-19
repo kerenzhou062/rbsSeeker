@@ -48,9 +48,8 @@ rbsSeeker may have 8 following output files in `bed format (0-base)` depends on 
 | Output file           | Description
 | -----------           |----------
 | `*_Peak.bed`          | identified peak-calling results
-| `*_PeakHeight.bed`    | identified peak-calling results
 | `*_Mutation.bed`      | identified mutation sites
-| `*_CT.bed`            | identified `C-to-T` mutation sites when set `--cvs CT`
+| `*_TC.bed` or `*_GA.bed`            | identified `T-to-C` mutation sites when set `--cvs TC`
 | `*_Truncation.bed`    | identified truncation sites
 | `*_Deletion.bed`      | identified deletion sites
 | `*_Insertion.bed`     | identified insertion sites

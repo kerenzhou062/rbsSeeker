@@ -9,10 +9,6 @@ make clean_api
 make api
 message=`make`
 
-cd $base/thirdUtils/cdflib
-make clean
-message=`make`
-
 cd $base/thirdUtils/RNAfoldLib
 make clean
 message=`make`
