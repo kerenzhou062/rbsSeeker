@@ -3,10 +3,10 @@ LIBS=-lm -lz
 CFLAGS = -O3 -g
 HG_DEFS = -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_GNU_SOURCE
 HG_WARN=-Wformat -Wreturn-type
-UTILITIES_DIR = ../../thirdUtils
-BIN_DIR = ../../bin
-BIO_DIR = ../../bioUtils
-BAM_DIR = ../../thirdUtils/BamTools
+UTILITIES_DIR = ./thirdUtils
+BIN_DIR = ./bin
+BIO_DIR = ./bioUtils
+BAM_DIR = ./thirdUtils/BamTools
 RNAFOLD_DIR = ./thirdUtils/RNAfoldLib
 INCLUDES = -I$(UTILITIES_DIR)/BamTools/include \
            -I$(UTILITIES_DIR)/BamTools/include/api \
@@ -29,6 +29,7 @@ clean:
 	rm -f *.o
 
 rbsSeeker: rbsSeeker.o rbsSeekerMain.o
+	$(shell mkdir -p $(BIN_DIR))
 	$(CXXC) $(CFLAGS) ${HG_DEFS} ${HG_WARN} $(INCLUDES) -o ${BIN_DIR}/rbsSeeker rbsSeekerMain.o rbsSeeker.o \
 	$(BIO_LIBS) $(LIBS) 
 
