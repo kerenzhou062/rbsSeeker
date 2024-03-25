@@ -23,7 +23,8 @@ rbsSeeker can identify highly convinced peaks and individual cross-linking sites
     
     cd ./rbsSeeker
     
-    sh install.sh
+    make clean
+    make
     
     export PATH=$PATH:/username/software/rbsSeeker/bin
     ```
@@ -45,15 +46,15 @@ rbsSeeker can identify highly convinced peaks and individual cross-linking sites
 
 # Output
 rbsSeeker may have 8 following output files in `bed format (0-base)` depends on the input arguments and your dataset.
-| Output file           | Description
-| -----------           |----------
-| `*_Peak.bed`          | identified peak-calling results
-| `*_Mutation.bed`      | identified mutation sites
-| `*_TC.bed` or `*_GA.bed`            | identified `T-to-C` mutation sites when set `--cvs TC`
-| `*_Truncation.bed`    | identified truncation sites
-| `*_Deletion.bed`      | identified deletion sites
-| `*_Insertion.bed`     | identified insertion sites
-| `*_End.bed`           | identified ending sites
+| Output file               | Description
+| -----------               |----------
+| `*_Peak.bed`              | identified peak-calling results
+| `*_Mutation.bed`          | identified mutation sites
+| `*_TC.bed` or `*_GA.bed`  | identified `T-to-C` mutation sites when set `--cvs TC`
+| `*_Truncation.bed`        | identified truncation sites
+| `*_Deletion.bed`          | identified deletion sites
+| `*_Insertion.bed`         | identified insertion sites
+| `*_End.bed`               | identified ending sites
 
 
 Here's the description of columns in the outputs:
@@ -87,7 +88,7 @@ Here is an example that shows how to use `rbsSeeker` to identify N6-methyladenos
     # rbsSeeker m6A sites calling, -t 129600000 is for human transcriptome
     # this step is usually finished within 20 minutes, it depends on the sizes of your datasets
     rbsSeeker -T CT -L 20 -t 129600000 -n 1 -H 3 -d 1 -p 0.05 -q 0.1 \
-      -o ./output -P miCLIP --fa hg38.fa --fai hg38.fa.fai --bam miCLIP.sorted.bam > miCLIP.rbsSeeker.log
+      -o ./output -P miCLIP --fa hg38.fa --fai hg38.fa.fai --treat miCLIP.sorted.bam > miCLIP.rbsSeeker.log
     ```
 
 * Output files from `rbsSeeker` results<BR>
@@ -96,7 +97,6 @@ Here is an example that shows how to use `rbsSeeker` to identify N6-methyladenos
     * miCLIP_Insertion.bed
     * miCLIP_Mutation.bed
     * miCLIP_Peak.bed
-    * miCLIP_PeakHeight.bed
     * miCLIP_Truncation.bed
 
 * Identify potential m6A sites (`DRACH motif`) (supposed the miCLIP was performed with [Abcam antibody](https://www.nature.com/articles/nmeth.3453/figures/1))
@@ -206,34 +206,40 @@ Here is an example that shows how to use `rbsSeeker` to identify N6-methyladenos
 The available options of rbsSeeker are as follow:
 
 ```shell
-Usage: rbsSeeker [options] --fa <genome file> --fai <genome fai> --bam <mapped alignments>
+Usage: rbsSeeker [options] --fa <genome file> --fai <genome fai> --treat <mapped alignments>
 [options]
-  -v, --verbose                   : verbose information
-  -V, --version                   : rbsSeeker version
-  -h, --help                      : help informations
-  -R, --PCR                       : remove pcr duplictions [default is not removed]
-  -e, --rm                        : remove the muations in start or end sites [default is not removed]
-  --fa <string>                   : genome file with FASTA format
-  --fai <string>                  : genome fai file with FAI format
-  --bam <string>                  : alignments file with BAM format
-  -o, --outdir <string>           : output dir
-  -P, --prefix <string>           : prefix for output files
-  -t, --transcriptome <int>       : transcriptome size [e.g. in human, default=129600000]
-  -T, --cvs <string>              : conversion string [e.g. TC in PAR-CLIP, CT in miCLIP]
-  -c, --min-peak-len <int>        : minimum length for a peak [default>=10]
-  -i, --min-read-len <int>        : minimum read length [default>=10]
-  -a, --max-read-len <int>        : maximum read length [default<=5000000]
-  -n, --min-read-num <double>     : minimum number of reads for calling a peak [Default=1]
-  -L, --max-locus-num <int>       : maximum locus number of reads for mapping to genome [Default=20]
-  -H, --min-height <double>       : minimum read height for calling a site [Default=5]
-  -r, --rpm <double>              : minimum rpm height for calling a site [Default=0.01]
-  -d, --min-var <double>          : minimum read number for calling a variational site [Default=1]
-  -p, --pval <double>             : minimum p value for calling a site [Default<=0.05]
-  -q, --qval <double>             : minimum q value for calling a site [Default<=0.05]
-  --primer<string>                : primer sequene for removing the mispriming [default=NULL]
-  -u, --brc-len<int>              : barcode length. extend the barcode length for mispriming [default=0]
-  -s, --min-ratio<double>         : minimum ratio for variation [default>=0]
-  -S, --max-ratio<double>         : maximum ratio for variation [default<=1.0]
+-v/--verbose               : verbose information
+-V/--version               : rbsSeeker version
+-h/--help                  : help informations
+-R/--PCR                   : remove pcr duplictions[default is not removed]
+-e/--rm                    : remove the muations in start or end sites[default is not removed]
+-N/--norm                  : normalized the reads to locus[default is not normalized]
+-k/--skip                  : skip reads spanning the intron[default is not skip]
+-K/--rnafold               : RNAfold for your sequences[default is not]
+--fa <string>              : genome file with FASTA format
+--fai <string>             : genome fai file with FAI format
+--treat <string>           : alignments treatment file with BAM format
+--control <string>         : alignments control file with BAM format
+-o/--outdir <string>       : output dir
+-P/--prefix <string>       : prefix for output files
+-t/--transcriptome <int>   : transcriptome size[e.g. in human, default=129600000]
+-T/--cvs <string>          : conversion string[e.g. TC in PAR-CLIP, CT in miCLIP]
+-c/--min-peak-len <int>    : minimum length for a peak [default>=10]
+-C/--max-peak-len <int>    : maximum length for a peak [default<=1000000]
+-i/--min-read-len <int>    : minimum read length [default>=18]
+-a/--max-read-len <int>    : maximum read length [default<=1000000]
+-n/--min-read-num <double> : minimum number of reads for calling a peak [Default=1]
+-L/--max-locus-num <int>   : maximum locus number of reads for mapping to genome [Default=5]
+-H/--min-height <double>   : minimum read height for calling a site [Default=5]
+-r/--rpm <double>          : minimum rpm height for calling a site [Default=1]
+-d/--min-var <double>      : minimum read number for calling a variational site [Default=1]
+-p/--pval <double>         : minimum p value for calling a site [Default<=0.05]
+-q/--qval <double>         : minimum q value for calling a site [Default<=0.05]
+-M/--motif<string>         : search motif in the identified sequences  [default=NULL]
+-s/--min-ratio<double>     : minimum ratio for variation [default>=0]
+-S/--max-ratio<double>     : maximum ratio for variation [default<=1.0]
+-m/--mfold<double>         : minimum fold-change for variation[default>=2]
+-w/--window<int>           : window length for calculating the lamda of each peak [default=500]
 ```
 
 # Acknowledgements

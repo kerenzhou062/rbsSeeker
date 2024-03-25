@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
   // help for version
   if (showVersion)
   {
-    fprintf(stderr, "%s", version);
+    fprintf(stderr, "%s\n", version);
     exit(1);
   }
 
