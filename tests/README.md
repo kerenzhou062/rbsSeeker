@@ -12,8 +12,8 @@ Download the testing datasets to your local folder.
     # suppose your path to run rbsSeeker is ./rbsSeeker_test
     mkdir ./rbsSeeker_test
     cd ./rbsSeeker_test
-    wget 'rbsSeeker.test.bam'
-    wget 'rbsSeeker.test.bam.bai'
+    wget 'https://rnasysu.com/encori/software_test/rbsSeeker.test.bam'
+    wget 'https://rnasysu.com/encori/software_test/rbsSeeker.test.bam.bai'
     ```
 
 # Run
