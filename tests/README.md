@@ -1,4 +1,4 @@
-# run rbsSeeker on testing CLIP datasets
+# run rbsSeeker on testing CLIP-seq datasets
 Here, we describe how to run rbsSeeker on the testing datasets
 
 - [download](#Downloading)
