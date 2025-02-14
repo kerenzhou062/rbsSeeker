@@ -14,7 +14,7 @@ rbsSeeker can identify highly convinced peaks and individual cross-linking sites
 - [Contact](#Contact)
 
 # System requirements
-The software package was tested on Linux system with RAM 15GB and CPU:20+ cores.
+The software package was tested on Linux system with RAM 64GB and CPU:16+ cores.
 
 # Run time
 Our software were written in C and C++ codes, so it has a supuer efficency when analyzing the CLIP-seq data. After testing, most of the tasks can be finished within 10 minutes.
