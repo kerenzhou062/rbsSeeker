@@ -10,15 +10,16 @@ Download the testing datasets to your local folder.
 
     ```bash
     # suppose your path to run rbsSeeker is ./rbsSeeker_test
-    
-    wget '/.bam'
-    wget '/.bam.bai'
+    mkdir ./rbsSeeker_test
+    cd ./rbsSeeker_test
+    wget 'rbsSeeker.test.bam'
+    wget 'rbsSeeker.test.bam.bai'
     ```
 
 # Run
 * It's very easy to run rbsSeeker on testing dataset. Supposed `rbsSeeker` has been added to you `PATH` environment and the `hg38.fa` and `hg38.fa.fai` have been generated.
     ```bash
-    rbsSeeker --fa hg38.fa --fai hg38.fa.fai --bam .bam --prefix rbsSeeker --outdir ./
+    rbsSeeker --fa hg38.fa --fai hg38.fa.fai --bam rbsSeeker.test.bam --prefix rbsSeeker --outdir ./
     ```
 
 # Output
