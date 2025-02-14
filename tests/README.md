@@ -12,28 +12,30 @@ Download the testing datasets to your local folder.
     # suppose your path to run rbsSeeker is ./rbsSeeker_test
     mkdir ./rbsSeeker_test
     cd ./rbsSeeker_test
-    wget 'https://rnasysu.com/encori/software_test/rbsSeeker.test.bam'
-    wget 'https://rnasysu.com/encori/software_test/rbsSeeker.test.bam.bai'
+    wget 'https://rnasysu.com/encori/software_test/rbsSeeker/IP/ENCSR987FTF-rep1.STAR.Aligned.sortedByCoord.out.bam'
+    wget 'https://rnasysu.com/encori/software_test/rbsSeeker/input/ENCSR799EKA-rep1.STAR.Aligned.sortedByCoord.out.bam'
     ```
 
 # Run
 * It's very easy to run rbsSeeker on testing dataset. Supposed `rbsSeeker` has been added to you `PATH` environment and the `hg38.fa` and `hg38.fa.fai` have been generated.
     ```bash
-    rbsSeeker --fa hg38.fa --fai hg38.fa.fai --bam rbsSeeker.test.bam --prefix rbsSeeker --outdir ./
+    rbsSeeker -p 0.05 -q 0.05 --rm -S 0.99 -d 5 -N -L 2 --skip --rnafold --fa hg38.fa --fai hg38.fa.fai --treat ./ENCSR987FTF-rep1.STAR.Aligned.sortedByCoord.out.bam --control ./ENCSR799EKA-rep1.STAR.Aligned.sortedByCoord.out.bam --outdir ./ --prefix ENCSR987FTF-rep1
     ```
 
 # Output
-rbsSeeker may have 8 following output files in `bed format (0-base)` depends on the input arguments and your dataset.
-| Output file               | Description
-| -----------               |----------
-| `*_Peak.bed`              | identified peak-calling results
-| `*_Mutation.bed`          | identified mutation sites
-| `*_TC.bed` or `*_GA.bed`  | identified `T-to-C` mutation sites when set `--cvs TC`
-| `*_Truncation.bed`        | identified truncation sites
-| `*_Deletion.bed`          | identified deletion sites
-| `*_Insertion.bed`         | identified insertion sites
-| `*_End.bed`               | identified ending sites
+The results should be the same with the following result files.
 
+    ```bash
+    # suppose your path to run rbsSeeker is ./rbsSeeker_test
+    mkdir validate_results
+    cd validate_results
+    wget 'https://rnasysu.com/encori/software_test/rbsSeeker/rbsSeeker_output/ENCSR987FTF-repl_Insertion.bed'
+    wget 'https://rnasysu.com/encori/software_test/rbsSeeker/rbsSeeker_output/ENCSR987FTF-repl_Peak.bed'
+    wget 'https://rnasysu.com/encori/software_test/rbsSeeker/rbsSeeker_output/ENCSR987FTF-repl_Truncation.bed'
+    wget 'https://rnasysu.com/encori/software_test/rbsSeeker/rbsSeeker_output/ENCSR987FTF-repl_Mutation.bed'
+    wget 'https://rnasysu.com/encori/software_test/rbsSeeker/rbsSeeker_output/ENCSR987FTF-repl_End.bed'
+    wget 'https://rnasysu.com/encori/software_test/rbsSeeker/rbsSeeker_output/ENCSR987FTF-repl_Deletion.bed'
+    ```
 
 Here's the description of columns in the outputs:
 
