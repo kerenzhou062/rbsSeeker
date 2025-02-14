@@ -3,16 +3,17 @@ Here, we describe the RNA-Binding Site Seeker (rbsSeeker), a new and unified sof
 
 rbsSeeker can identify highly convinced peaks and individual cross-linking sites, of which includes deletions, truncations and mutations.
 
-- [rbsSeeker](#rbsSeeker)
+- [System requirements](#System-requirements)
+- [Run time](#Run-time)
 - [Installation](#Installation)
 - [Input](#Input)
 - [Output](#Output)
-- [Example](#Example)
 - [Basic usage](#Basic-usage)
+- [Run rbsSeeker on testing dataset](#Run-rbsSeeker-on-testing-dataset)
 - [Acknowledgements](#Acknowledgements)
 - [Contact](#Contact)
 
-# System Requirements
+# System requirements
 The software package was tested on Linux system with RAM 15GB and CPU:20+ cores.
 
 # Run time
@@ -247,6 +248,10 @@ Usage: rbsSeeker [options] --fa <genome file> --fai <genome fai> --treat <mapped
 -m/--mfold<double>         : minimum fold-change for variation[default>=2]
 -w/--window<int>           : window length for calculating the lamda of each peak [default=500]
 ```
+
+# Run rbsSeeker on testing dataset
+Please [check here](test_data/README.md) to learn how to run rbsSeeker on a testing dataset.
+
 
 # Acknowledgements
 Thanks a lot to everyone who contributed to the public codes and libraries (e.g. BamTools) used by rbsSeeker.
