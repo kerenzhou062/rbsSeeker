@@ -6,7 +6,7 @@ Here, we describe how to run rbsSeeker on the testing datasets
 - [Output](#Output)
 
 # Downloading
-Download the testing datasets to your local folder.
+* Download the testing datasets to your local folder.
 
     ```bash
     # suppose your path to run rbsSeeker is ./rbsSeeker_test
@@ -23,7 +23,7 @@ Download the testing datasets to your local folder.
     ```
 
 # Output
-The results should be the same with the following result files.
+* The results should be the same with the following result files.
 
     ```bash
     # suppose your path to run rbsSeeker is ./rbsSeeker_test
