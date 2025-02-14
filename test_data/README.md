@@ -63,4 +63,4 @@ Thanks a lot to everyone who contributed to the public codes and libraries (e.g.
 
 # Contact
 * Jian-Hua Yang <yangjh7@mail.sysu.edu.cn>, RNA Information Center, School of Life Sciences, Sun Yat-Sen University<BR>
-* Keren Zhou <kzhou@stjude.org>, Department of Systems Biology, Beckman Research Institute of City of Hope, Monrovia, CA, USA<BR>
+* Keren Zhou <kzhou@stjude.org>, Department of Pathology, St. Jude Children’s Research Hospital, Memphis, TN, USA<BR>
