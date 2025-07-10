@@ -17,7 +17,7 @@ rbsSeeker can identify highly convinced peaks and individual cross-linking sites
 The software package was tested on Linux system with RAM 64GB and CPU:16+ cores.
 
 # Run time
-Our software were written in C and C++ codes, so it has a supuer efficency when analyzing the CLIP-seq data. After testing, most of the tasks can be finished within 10 minutes.
+Because our software is written in C and C++, it achieves superior efficiency in CLIP-seq data analysis, enabling most tasks to be completed in less than 10 minutes.
 
 # Installation
 * It's very easy to install rbsSeeker on a linux server with following commands:
