@@ -42,21 +42,21 @@ Here's the description of columns in the outputs:
 | Column name      | Description
 | -----------      |----------
 | `chrom`          | chromosome name
-| `chromStart`     | start genomic coordiate of specific event (e.g. peak, deletion, truncation or mutation) (0-base)
-| `chromEnd`       | end genomic coordiate of specific event
-| `name`           | uniq event id
+| `chromStart`     | Start genomic coordiate of the event (e.g. peak, deletion, truncation or mutation) (0-base)
+| `chromEnd`       | End genomic coordinate of the event
+| `name`           | Unique event ID
 | `score`          | RPM of peak/site height
-| `strand`         | genomic sense (+) or antisense (-) strand of specific event
-| `extendSeq`      | sequence extended ± 10bp from the individual sites or the peak center
-| `motifPos`       | start position of input motif in `extendSeq` column. Starts with `0`. `-1` means there is no motif found in `extendSeq`.
-| `type`           | indicate the type of peak or site
-| `log10(p-value)` | log10 of p-value.
-| `log10(q-value)` | log10 of q-value.
-| `readNum`        | read number of peak/site.
-| `height`         | maximum peak/site height.
-| `heightRpm`      | maximum peak/site height in Reads Per Million (RPM).
-| `mfold`          | fold enrichment ( maximum height / average coverage).
-| `ratio`          | ratio of specific event ( read number / total read number).
+| `strand`         | Genomic sense (+) or antisense (-) strand of the event
+| `extendSeq`      | Sequence extended ±10 bp from the site or peak center
+| `motifPos`       | Start position of the motif in the `extendSeq` column (0-based). `-1` indicates no motif found.
+| `type`           | Type of peak or site
+| `log10(p-value)` | Log10-transformed p-value
+| `log10(q-value)` | Log10-transformed q-value
+| `readNum`        | This column represents the number of reads that support a specific binding event.
+| `height`         | This value represents the total number of reads covering a specific nucleotide position, regardless of whether they contain a variation event or not.
+| `heightRpm`      | This is the `height` normalized to Reads Per Million (RPM) mapped reads.
+| `mfold`          | This column represents the fold-enrichment of a binding signal compared to a background model.
+| `ratio`          | this is the proportion of reads covering a site that also carry the specific variation.
 
 # Acknowledgements
 Thanks a lot to everyone who contributed to the public codes and libraries (e.g. BamTools) used by rbsSeeker.
