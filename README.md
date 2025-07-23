@@ -254,7 +254,7 @@ Usage: rbsSeeker [options] --fa <genome file> --fai <genome fai> --treat <mapped
 ```
 
 # Run rbsSeeker on testing dataset
-Please Refer to [this guide](test_data/README.md) for instructions on running rbsSeeker on a testing dataset.
+Please refer to [this guide](test_data/README.md) for instructions on running rbsSeeker on a testing dataset.
 
 # Acknowledgements
 We extend our gratitude to all contributors of public codes and libraries (e.g., BamTools) utilized by rbsSeeker.
