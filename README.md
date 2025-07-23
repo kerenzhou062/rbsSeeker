@@ -19,7 +19,11 @@ rbsSeeker has been tested on Linux systems with the following specifications:
 - **CPU:** 16+ cores
 
 # Run time
+<<<<<<< HEAD
 Written in C and C++, rbsSeeker is highly efficient for analyzing CLIP-seq data. Most tasks are completed within 10 minutes during testing.
+=======
+Because our software is written in C and C++, it achieves superior efficiency in CLIP-seq data analysis, enabling most tasks to be completed in less than 10 minutes.
+>>>>>>> f0ca7c8c8aa29e0f366aaf103270cf85aa93b5f6
 
 # Installation
 * Installing rbsSeeker on a Linux server is straightforward. Use the following commands:
