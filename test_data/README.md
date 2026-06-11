@@ -9,24 +9,28 @@ Here, we describe how to run rbsSeeker on the testing datasets
 * Download the testing datasets to your local folder.
 
     ```bash
-    # suppose your path to run rbsSeeker is ./rbsSeeker_test
-    mkdir ./rbsSeeker_test
-    cd ./rbsSeeker_test
-    wget 'https://rnasysu.com/encori/software_test/rbsSeeker/IP/ENCSR987FTF-rep1.STAR.Aligned.sortedByCoord.out.bam'
-    wget 'https://rnasysu.com/encori/software_test/rbsSeeker/input/ENCSR799EKA-rep1.STAR.Aligned.sortedByCoord.out.bam'
+    # suppose your path to run rbsSeeker is ./software_test
+    mkdir ./software_test
+    cd ./software_test
+    # download all testing datsets and decompress them
+    wget 'https://rnasysu.com/encori/software_test/dataset_to_demo_the_software.tar.gz'
+    tar -zxf dataset_to_demo_the_software.tar.gz
+
+    # you will see two sub folders under the folder dataset_to_demo_the_software, rbsSeeker and rriScan
+    cd dataset_to_demo_the_software/rbsSeeker
+    # under the folder rbsSeeker, you will have the testing datasets: 'IP/ENCSR987FTF-rep1.STAR.Aligned.sortedByCoord.out.bam' and 'input/ENCSR799EKA-rep1.STAR.Aligned.sortedByCoord.out.bam'
     ```
 
 # Run
 * It's very easy to run rbsSeeker on testing dataset. Supposed `rbsSeeker` has been added to you `PATH` environment and the `hg38.fa` and `hg38.fa.fai` have been generated.
     ```bash
-    rbsSeeker -p 0.05 -q 0.05 --rm -S 0.99 -d 5 -N -L 2 --skip --rnafold --fa hg38.fa --fai hg38.fa.fai --treat ./ENCSR987FTF-rep1.STAR.Aligned.sortedByCoord.out.bam --control ./ENCSR799EKA-rep1.STAR.Aligned.sortedByCoord.out.bam --outdir ./ --prefix ENCSR987FTF-rep1
+    rbsSeeker -p 0.05 -q 0.05 --rm -S 0.99 -d 5 -N -L 2 --skip --rnafold --fa hg38.fa --fai hg38.fa.fai --treat ./IP/ENCSR987FTF-rep1.STAR.Aligned.sortedByCoord.out.bam --control ./input/ENCSR799EKA-rep1.STAR.Aligned.sortedByCoord.out.bam --outdir ./ --prefix ENCSR987FTF-rep1
     ```
 
 # Output
 * The results should be the same with the following result files.
 
     ```bash
-    # suppose your path to run rbsSeeker is ./rbsSeeker_test
     mkdir validate_results
     cd validate_results
     wget 'https://rnasysu.com/encori/software_test/rbsSeeker/rbsSeeker_output/ENCSR987FTF-repl_Insertion.bed'
