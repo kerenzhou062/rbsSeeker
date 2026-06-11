@@ -28,17 +28,15 @@ Here, we describe how to run rbsSeeker on the testing datasets
     ```
 
 # Output
-* The results should be the same with the following result files.
+* The results should be the same with the following result files under folder `rbsSeeker_output`.
 
     ```bash
-    mkdir validate_results
-    cd validate_results
-    wget 'https://rnasysu.com/encori/software_test/rbsSeeker/rbsSeeker_output/ENCSR987FTF-repl_Insertion.bed'
-    wget 'https://rnasysu.com/encori/software_test/rbsSeeker/rbsSeeker_output/ENCSR987FTF-repl_Peak.bed'
-    wget 'https://rnasysu.com/encori/software_test/rbsSeeker/rbsSeeker_output/ENCSR987FTF-repl_Truncation.bed'
-    wget 'https://rnasysu.com/encori/software_test/rbsSeeker/rbsSeeker_output/ENCSR987FTF-repl_Mutation.bed'
-    wget 'https://rnasysu.com/encori/software_test/rbsSeeker/rbsSeeker_output/ENCSR987FTF-repl_End.bed'
-    wget 'https://rnasysu.com/encori/software_test/rbsSeeker/rbsSeeker_output/ENCSR987FTF-repl_Deletion.bed'
+    #rbsSeeker_output/ENCSR987FTF-repl_Insertion.bed
+    #rbsSeeker_output/ENCSR987FTF-repl_Peak.bed
+    #rbsSeeker_output/ENCSR987FTF-repl_Truncation.bed
+    #rbsSeeker_output/ENCSR987FTF-repl_Mutation.bed
+    #rbsSeeker_output/ENCSR987FTF-repl_End.bed
+    #rbsSeeker_output/ENCSR987FTF-repl_Deletion.bed
     ```
 
 Here's the description of columns in the outputs:
